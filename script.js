@@ -2290,7 +2290,7 @@ class TrackmaniaSignpackGenerator {
                 }
             });
 
-            this.updateStatus('Signpack generated successfully! ✅');
+            this.updateStatus('');
             this.updateProgress(100);
             this.elements.downloadSection.classList.add('active');
 
