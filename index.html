@@ -33,6 +33,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            select option {
+            /* Forcing black text to be visible on the default white dropdown background */
+            color: #000000 !important; 
+            background: #ffffff; 
+        }
+
         }
 
         body {
@@ -269,7 +275,7 @@
         }
 
         .theme-card {
-            background: rgba(0, 0, 0, 0.877);
+            background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             padding: 16px;
@@ -1016,13 +1022,6 @@
         .form-group-with-lock > div:first-child {
             flex: 1;
         }
-
-        select option {
-            /* Forcing black text to be visible on the default white dropdown background */
-            color: #000000 !important; 
-            background: #ffffff; 
-        }
-        
     </style>
 </head>
 <body>
