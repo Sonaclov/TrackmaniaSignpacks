@@ -236,15 +236,27 @@ class TrackmaniaSignpackGenerator {
             // Sign format
             signFormat: document.getElementById('signFormat'),
 
-            // Signpack configuration
-            signpackName: document.getElementById('signpackName'),
-            numberFormat: document.getElementById('numberFormat'),
-            startNumber: document.getElementById('startNumber'),
-            endNumber: document.getElementById('endNumber'),
-            customPrefix: document.getElementById('customPrefix'),
-            numberSuffix: document.getElementById('numberSuffix'),
-            includePNG: document.getElementById('includePNG'),
-            includeJSON: document.getElementById('includeJSON'),
+            // Pack configuration
+            includeCheckpoints: document.getElementById('includeCheckpoints'),
+            checkpointPrefix: document.getElementById('checkpointPrefix'),
+            cpStartNumber: document.getElementById('cpStartNumber'),
+            cpEndNumber: document.getElementById('cpEndNumber'),
+            includeStart: document.getElementById('includeStart'),
+            startText: document.getElementById('startText'),
+            includeFinish: document.getElementById('includeFinish'),
+            finishText: document.getElementById('finishText'),
+            includeArrows: document.getElementById('includeArrows'),
+            arrowUp: document.getElementById('arrowUp'),
+            arrowDown: document.getElementById('arrowDown'),
+            arrowLeft: document.getElementById('arrowLeft'),
+            arrowRight: document.getElementById('arrowRight'),
+            arrowUpLeft: document.getElementById('arrowUpLeft'),
+            arrowUpRight: document.getElementById('arrowUpRight'),
+            arrowDownLeft: document.getElementById('arrowDownLeft'),
+            arrowDownRight: document.getElementById('arrowDownRight'),
+            packName: document.getElementById('packName'),
+            filePrefix: document.getElementById('filePrefix'),
+            includeSettingsJSON: document.getElementById('includeSettingsJSON'),
 
             // Lock buttons
             lockFontFamily: document.getElementById('lockFontFamily'),
@@ -297,11 +309,8 @@ class TrackmaniaSignpackGenerator {
         // Background type change
         this.elements.backgroundType.addEventListener('change', () => this.toggleBackgroundControls());
 
-
-        // Number format change handler
-        if (this.elements.numberFormat) {
-            this.elements.numberFormat.addEventListener('change', () => this.updatePreview());
-        }
+        // Pack configuration toggles
+        this.setupPackConfiguration();
 
         // Lock button handlers
         this.setupLockButtons();
@@ -355,6 +364,104 @@ class TrackmaniaSignpackGenerator {
                 valueDisplay.textContent = slider.value + unit;
             }
         });
+    }
+
+    setupPackConfiguration() {
+        // Toggle config sections based on checkboxes
+        const toggleConfig = (checkboxId, configId) => {
+            const checkbox = document.getElementById(checkboxId);
+            const config = document.getElementById(configId);
+            if (checkbox && config) {
+                checkbox.addEventListener('change', () => {
+                    config.style.display = checkbox.checked ? 'block' : 'none';
+                    this.updatePackSummary();
+                    this.updatePreview();
+                });
+                // Initialize
+                config.style.display = checkbox.checked ? 'block' : 'none';
+            }
+        };
+
+        toggleConfig('includeCheckpoints', 'checkpointConfig');
+        toggleConfig('includeStart', 'startConfig');
+        toggleConfig('includeFinish', 'finishConfig');
+        toggleConfig('includeArrows', 'arrowConfig');
+
+        // Update pack summary on any pack config change
+        const packConfigElements = [
+            'includeCheckpoints', 'cpStartNumber', 'cpEndNumber',
+            'includeStart', 'includeFinish', 'includeArrows',
+            'arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight',
+            'arrowUpLeft', 'arrowUpRight', 'arrowDownLeft', 'arrowDownRight'
+        ];
+
+        packConfigElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', () => this.updatePackSummary());
+                element.addEventListener('input', () => this.updatePackSummary());
+            }
+        });
+
+        // Initial pack summary
+        this.updatePackSummary();
+    }
+
+    updatePackSummary() {
+        const packList = document.getElementById('packList');
+        const totalSigns = document.getElementById('totalSigns');
+        if (!packList || !totalSigns) return;
+
+        let items = [];
+        let total = 0;
+
+        // Checkpoints
+        if (this.elements.includeCheckpoints?.checked) {
+            const start = parseInt(this.elements.cpStartNumber?.value || 1);
+            const end = parseInt(this.elements.cpEndNumber?.value || 100);
+            const count = Math.max(0, end - start + 1);
+            items.push(`Checkpoints: ${start}-${end} (${count} signs)`);
+            total += count;
+        }
+
+        // Start
+        if (this.elements.includeStart?.checked) {
+            items.push('START sign (1 sign)');
+            total += 1;
+        }
+
+        // Finish
+        if (this.elements.includeFinish?.checked) {
+            items.push('FINISH sign (1 sign)');
+            total += 1;
+        }
+
+        // Arrows
+        if (this.elements.includeArrows?.checked) {
+            const arrows = [];
+            if (this.elements.arrowUp?.checked) arrows.push('↑');
+            if (this.elements.arrowDown?.checked) arrows.push('↓');
+            if (this.elements.arrowLeft?.checked) arrows.push('←');
+            if (this.elements.arrowRight?.checked) arrows.push('→');
+            if (this.elements.arrowUpLeft?.checked) arrows.push('↖');
+            if (this.elements.arrowUpRight?.checked) arrows.push('↗');
+            if (this.elements.arrowDownLeft?.checked) arrows.push('↙');
+            if (this.elements.arrowDownRight?.checked) arrows.push('↘');
+
+            if (arrows.length > 0) {
+                items.push(`Arrows: ${arrows.join(' ')} (${arrows.length} signs)`);
+                total += arrows.length;
+            }
+        }
+
+        // Update display
+        if (items.length === 0) {
+            packList.innerHTML = '<li style="color: var(--color-warning);">No sign types selected</li>';
+        } else {
+            packList.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+        }
+
+        totalSigns.textContent = total;
     }
 
     setupEffectToggles() {
@@ -1020,17 +1127,30 @@ class TrackmaniaSignpackGenerator {
         const maxWidth = 280;
         const canvasHeight = Math.round(maxWidth / aspectRatio);
 
-        // Update all three canvases
+        // Update all preview canvases
         Object.keys(this.canvases).forEach(key => {
-            this.canvases[key].width = maxWidth;
-            this.canvases[key].height = canvasHeight;
+            if (this.canvases[key]) {
+                this.canvases[key].width = maxWidth;
+                this.canvases[key].height = canvasHeight;
+            }
         });
 
-        // Draw different checkpoint numbers with formatting
-        this.drawSign(this.contexts.cp1, maxWidth, canvasHeight, this.formatNumber(1));
-        this.drawSign(this.contexts.cp10, maxWidth, canvasHeight, this.formatNumber(10));
-        this.drawSign(this.contexts.cp50, maxWidth, canvasHeight, this.formatNumber(50));
-        this.drawSign(this.contexts.cp100, maxWidth, canvasHeight, this.formatNumber(100));
+        // Draw different sign types
+        const checkpointPrefix = this.elements.checkpointPrefix?.value || 'Checkpoint';
+        const startText = this.elements.startText?.value || 'START';
+        const finishText = this.elements.finishText?.value || 'FINISH';
+
+        // Checkpoint example
+        this.drawSign(this.contexts.cp1, maxWidth, canvasHeight, `${checkpointPrefix} 1`);
+
+        // START sign
+        this.drawSign(this.contexts.start, maxWidth, canvasHeight, startText);
+
+        // Arrow example (right arrow)
+        this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '→');
+
+        // FINISH sign
+        this.drawSign(this.contexts.finish, maxWidth, canvasHeight, finishText);
     }
 
     drawSign(ctx, width, height, number) {
@@ -2223,20 +2343,86 @@ class TrackmaniaSignpackGenerator {
         link.click();
     }
 
+    getSignsToGenerate() {
+        const signs = [];
+        const checkpointPrefix = this.elements.checkpointPrefix?.value || 'Checkpoint';
+        const startText = this.elements.startText?.value || 'START';
+        const finishText = this.elements.finishText?.value || 'FINISH';
+
+        // Checkpoints
+        if (this.elements.includeCheckpoints?.checked) {
+            const start = parseInt(this.elements.cpStartNumber?.value || 1);
+            const end = parseInt(this.elements.cpEndNumber?.value || 100);
+
+            for (let i = start; i <= end; i++) {
+                const text = `${checkpointPrefix} ${i}`;
+                const paddedNum = String(i).padStart(3, '0');
+                signs.push({
+                    type: 'checkpoint',
+                    text: text,
+                    filename: `cp-${paddedNum}.png`
+                });
+            }
+        }
+
+        // START sign
+        if (this.elements.includeStart?.checked) {
+            signs.push({
+                type: 'start',
+                text: startText,
+                filename: 'start.png'
+            });
+        }
+
+        // FINISH sign
+        if (this.elements.includeFinish?.checked) {
+            signs.push({
+                type: 'finish',
+                text: finishText,
+                filename: 'finish.png'
+            });
+        }
+
+        // Arrows
+        if (this.elements.includeArrows?.checked) {
+            const arrows = [
+                { check: 'arrowUp', text: '↑', name: 'up' },
+                { check: 'arrowDown', text: '↓', name: 'down' },
+                { check: 'arrowLeft', text: '←', name: 'left' },
+                { check: 'arrowRight', text: '→', name: 'right' },
+                { check: 'arrowUpLeft', text: '↖', name: 'up-left' },
+                { check: 'arrowUpRight', text: '↗', name: 'up-right' },
+                { check: 'arrowDownLeft', text: '↙', name: 'down-left' },
+                { check: 'arrowDownRight', text: '↘', name: 'down-right' }
+            ];
+
+            arrows.forEach(arrow => {
+                if (this.elements[arrow.check]?.checked) {
+                    signs.push({
+                        type: 'arrow',
+                        text: arrow.text,
+                        filename: `arrow-${arrow.name}.png`
+                    });
+                }
+            });
+        }
+
+        return signs;
+    }
+
     // Generation and Download
     async generateSignpack() {
         const dimensions = this.getSignDimensions();
 
-        // Get configuration settings
-        const startNum = parseInt(this.elements.startNumber?.value) || 1;
-        const endNum = parseInt(this.elements.endNumber?.value) || 100;
+        // Calculate total signs from all selected types
+        const signsTogenerate = this.getSignsToGenerate();
+        const totalSigns = signsTogenerate.length;
 
-        if (startNum > endNum) {
-            alert('❌ Start number cannot be greater than end number');
+        if (totalSigns === 0) {
+            alert('❌ Please select at least one sign type to generate');
             return;
         }
 
-        const totalSigns = endNum - startNum + 1;
         if (totalSigns > 200) {
             const proceed = confirm(`⚠️ You're generating ${totalSigns} signs. This may take a while. Continue?`);
             if (!proceed) return;
@@ -2268,28 +2454,31 @@ class TrackmaniaSignpackGenerator {
             // Ensure fonts are loaded before generation
             await this.loadFonts();
 
+            const filePrefix = this.elements.filePrefix?.value || '';
+
+            // Generate all signs
             let currentIndex = 0;
-            for (let i = startNum; i <= endNum; i++) {
+            for (const sign of signsTogenerate) {
                 currentIndex++;
-                this.updateStatus(`Generating sign ${currentIndex}/${totalSigns}...`);
+                this.updateStatus(`Generating ${sign.type} (${currentIndex}/${totalSigns})...`);
                 this.updateProgress((currentIndex / totalSigns) * 90);
 
                 // Clear and draw the sign
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                this.drawSign(ctx, dimensions.width, dimensions.height, this.formatNumber(i));
+                this.drawSign(ctx, dimensions.width, dimensions.height, sign.text);
 
                 try {
                     const blob = await this.canvasToBlob(canvas);
                     if (!blob) {
-                        throw new Error(`Failed to generate image for checkpoint ${i}`);
+                        throw new Error(`Failed to generate image for ${sign.filename}`);
                     }
 
-                    // Generate filename with custom prefix if specified
-                    const filename = this.getFileName(i);
+                    // Add file prefix if specified
+                    const filename = filePrefix ? `${filePrefix}-${sign.filename}` : sign.filename;
                     zip.file(filename, blob);
 
                 } catch (blobError) {
-                    console.warn(`Error generating sign ${i}:`, blobError);
+                    console.warn(`Error generating sign ${sign.filename}:`, blobError);
                     // Continue with next sign
                 }
 
@@ -2373,8 +2562,9 @@ class TrackmaniaSignpackGenerator {
             return;
         }
 
+        const packName = (this.elements.packName?.value || 'Trackmania-Signs').replace(/\s+/g, '-');
         const settings = this.getSettings();
-        const filename = `${settings.textPrefix.replace(/\s+/g, '_')}_Signpack_${settings.signFormat}.zip`;
+        const filename = `${packName}_${settings.signFormat}.zip`;
 
         const url = URL.createObjectURL(this.generatedZip);
         const a = document.createElement('a');
