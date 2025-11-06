@@ -1,13 +1,7 @@
 /**
  * Trackmania Signpack Generator - Main Application
- * Enhanced with modular architecture, validation, templates, and community features
+ * v2.0 - Enhanced with modular architecture and community themes
  */
-
-import { LIMITS, SIGN_FORMATS, ERROR_MESSAGES, FONT_FAMILIES } from './src/constants.js';
-import { debounce, showToast, compressSettings, decompressSettings, getUrlParams, estimateSignpackSize, estimateGenerationTime } from './src/utils.js';
-import { InputValidator, FileValidator, ValidationError, ErrorHandler } from './src/validation.js';
-import { COMMUNITY_TEMPLATES } from './src/templates.js';
-import { shareManager } from './src/sharing.js';
 
 class TrackmaniaSignpackGenerator {
     constructor() {
@@ -88,12 +82,6 @@ class TrackmaniaSignpackGenerator {
 
             console.log('Generator fully initialized and ready!');
 
-            // Check for shared preset from URL
-            this.loadSharedPreset();
-
-            // Set up new community feature handlers
-            this.setupCommunityFeatures();
-
         }).catch(error => {
             console.error('Error during font loading:', error);
             this.initialized = true; // Still mark as initialized so basic functions work
@@ -104,255 +92,7 @@ class TrackmaniaSignpackGenerator {
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Signpack';
             }
-
-            // Still load shared presets even if fonts failed
-            this.loadSharedPreset();
-            this.setupCommunityFeatures();
         });
-    }
-
-    /**
-     * Load shared preset from URL if present
-     */
-    loadSharedPreset() {
-        try {
-            const sharedSettings = shareManager.loadFromUrl();
-            if (sharedSettings) {
-                console.log('Loading shared preset from URL...');
-                this.loadSettings(sharedSettings);
-                showToast('✨ Loaded shared design!', 'success', 4000);
-
-                // Update URL to remove the preset parameter (optional)
-                // window.history.replaceState({}, '', window.location.pathname);
-            }
-        } catch (error) {
-            console.error('Failed to load shared preset:', error);
-            showToast('❌ Failed to load shared design. Invalid link.', 'error');
-        }
-    }
-
-    /**
-     * Set up handlers for community features (Templates, Share, Discord)
-     */
-    setupCommunityFeatures() {
-        // Templates button
-        const templatesBtn = document.getElementById('templatesBtn');
-        if (templatesBtn) {
-            templatesBtn.addEventListener('click', () => this.showTemplateSelector());
-        }
-
-        // Share button
-        const shareBtn = document.getElementById('shareBtn');
-        if (shareBtn) {
-            shareBtn.addEventListener('click', () => this.shareDesign());
-        }
-
-        // Discord button
-        const discordBtn = document.getElementById('discordBtn');
-        if (discordBtn) {
-            discordBtn.addEventListener('click', () => shareManager.configureDiscordWebhook());
-        }
-
-        console.log('Community features initialized!');
-    }
-
-    /**
-     * Show template selector modal
-     */
-    showTemplateSelector() {
-        const modal = document.createElement('div');
-        modal.className = 'template-modal';
-
-        // Group templates by category
-        const categories = {};
-        for (const [name, template] of Object.entries(COMMUNITY_TEMPLATES)) {
-            if (!categories[template.category]) {
-                categories[template.category] = [];
-            }
-            categories[template.category].push({ name, ...template });
-        }
-
-        let categoriesHTML = '';
-        for (const [category, templates] of Object.entries(categories)) {
-            categoriesHTML += `
-                <div class="template-category">
-                    <h3>${category.charAt(0).toUpperCase() + category.slice(1)}</h3>
-                    <div class="template-grid">
-                        ${templates.map(template => `
-                            <div class="template-card" onclick="generator.applyTemplate('${template.name}')">
-                                <div class="template-icon">${template.icon}</div>
-                                <h4>${template.name}</h4>
-                                <p class="template-desc">${template.description}</p>
-                                <span class="template-difficulty">${template.difficulty}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        modal.innerHTML = `
-            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
-            <div class="modal-content" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
-                <div class="modal-header">
-                    <h2><i class="fas fa-layer-group"></i> Quick Start Templates</h2>
-                    <button class="modal-close" onclick="this.closest('.template-modal').remove()">×</button>
-                </div>
-                <div class="modal-body">
-                    <p style="color: #aaa; margin-bottom: 20px;">
-                        Choose a template to get started quickly! Each template can be customized to match your style.
-                    </p>
-                    ${categoriesHTML}
-                </div>
-            </div>
-        `;
-
-        // Add styles if not present
-        if (!document.getElementById('template-modal-styles')) {
-            const style = document.createElement('style');
-            style.id = 'template-modal-styles';
-            style.textContent = `
-                .template-modal {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    z-index: 10000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .template-modal .modal-overlay {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0, 0, 0, 0.8);
-                    backdrop-filter: blur(5px);
-                }
-                .template-modal .modal-content {
-                    position: relative;
-                    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
-                    border-radius: 12px;
-                    padding: 0;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-                    animation: modalSlideIn 0.3s ease-out;
-                }
-                .template-modal .modal-header {
-                    padding: 20px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                .template-modal .modal-header h2 {
-                    margin: 0;
-                    color: #fff;
-                }
-                .template-modal .modal-close {
-                    background: transparent;
-                    border: none;
-                    color: #fff;
-                    font-size: 2em;
-                    cursor: pointer;
-                    padding: 0 10px;
-                }
-                .template-modal .modal-body {
-                    padding: 20px;
-                }
-                .template-category {
-                    margin-bottom: 30px;
-                }
-                .template-category h3 {
-                    color: #4facfe;
-                    margin-bottom: 15px;
-                    text-transform: capitalize;
-                }
-                .template-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                    gap: 15px;
-                }
-                .template-card {
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 8px;
-                    padding: 15px;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    text-align: center;
-                }
-                .template-card:hover {
-                    background: rgba(79, 172, 254, 0.15);
-                    border-color: #4facfe;
-                    transform: translateY(-2px);
-                }
-                .template-icon {
-                    font-size: 2.5em;
-                    margin-bottom: 10px;
-                }
-                .template-card h4 {
-                    color: #fff;
-                    margin: 10px 0;
-                    font-size: 1em;
-                }
-                .template-desc {
-                    color: #aaa;
-                    font-size: 0.85em;
-                    margin: 8px 0;
-                    line-height: 1.4;
-                }
-                .template-difficulty {
-                    display: inline-block;
-                    padding: 3px 8px;
-                    background: rgba(79, 172, 254, 0.2);
-                    border-radius: 3px;
-                    font-size: 0.75em;
-                    color: #4facfe;
-                    text-transform: capitalize;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        document.body.appendChild(modal);
-    }
-
-    /**
-     * Apply a template to current settings
-     */
-    applyTemplate(templateName) {
-        const template = COMMUNITY_TEMPLATES[templateName];
-        if (!template) {
-            showToast('❌ Template not found', 'error');
-            return;
-        }
-
-        // Load template settings
-        this.loadSettings(template.settings);
-
-        // Close modal
-        document.querySelector('.template-modal')?.remove();
-
-        // Show success message with instructions
-        showToast(`✨ ${templateName} template applied! ${template.instructions}`, 'success', 5000);
-    }
-
-    /**
-     * Share current design
-     */
-    async shareDesign() {
-        const settings = this.getSettings();
-        const previewCanvas = this.canvases.cp1; // Use first preview
-
-        try {
-            await shareManager.showShareModal(settings, previewCanvas);
-        } catch (error) {
-            console.error('Failed to show share modal:', error);
-            showToast('❌ Failed to create share link', 'error');
-        }
     }
 
     async loadFonts() {
@@ -2623,9 +2363,6 @@ function checkGenerator() {
     }
 }
 
-// Make checkGenerator available globally for debugging
-window.checkGenerator = checkGenerator;
-
 function toggleTool(header) {
     const content = header.nextElementSibling;
     const isActive = header.classList.contains('active');
@@ -2722,6 +2459,96 @@ function applyTheme(themeName) {
             textGlow: true,
             glowColor: '#00ff00',
             glowIntensity: 10
+        },
+        clan: {
+            textPrefix: 'CLAN',
+            fontSize: 70,
+            fontFamily: 'Bebas Neue',
+            fontWeight: '400',
+            textColor: '#FFD700',
+            textTransform: 'uppercase',
+            backgroundType: 'solid',
+            backgroundColor: '#1a1a1a',
+            textShadow: true,
+            shadowColor: '#000000',
+            shadowBlur: 6,
+            textStroke: true,
+            strokeColor: '#000000',
+            strokeWidth: 3,
+            borderWidth: 4,
+            borderColor: '#FFD700'
+        },
+        minimalist: {
+            textPrefix: 'CP',
+            fontSize: 60,
+            fontFamily: 'Inter',
+            fontWeight: '600',
+            textColor: '#2c3e50',
+            backgroundType: 'solid',
+            backgroundColor: '#ffffff',
+            textShadow: true,
+            shadowColor: '#bdc3c7',
+            shadowBlur: 2,
+            borderWidth: 2,
+            borderColor: '#95a5a6',
+            cornerRadius: 8
+        },
+        speedrun: {
+            textPrefix: '⚡',
+            fontSize: 80,
+            fontFamily: 'Racing Sans One',
+            textColor: '#ff0000',
+            backgroundType: 'solid',
+            backgroundColor: '#ffff00',
+            textStroke: true,
+            strokeColor: '#000000',
+            strokeWidth: 4,
+            borderWidth: 6,
+            borderColor: '#000000'
+        },
+        rainbow: {
+            textPrefix: '✨',
+            fontSize: 75,
+            fontFamily: 'Fredoka One',
+            textColor: '#ff00ff',
+            textTransform: 'uppercase',
+            backgroundType: 'linear',
+            gradientColor1: '#ff0080',
+            gradientColor2: '#00ffff',
+            gradientAngle: 90,
+            textShadow: true,
+            shadowColor: '#000000',
+            textStroke: true,
+            strokeColor: '#ffffff',
+            strokeWidth: 3,
+            rainbow: true,
+            borderWidth: 5,
+            borderColor: '#ffffff',
+            cornerRadius: 10
+        },
+        darkpro: {
+            textPrefix: 'CP',
+            fontSize: 68,
+            fontFamily: 'Poppins',
+            fontWeight: '600',
+            textColor: '#ffffff',
+            textTransform: 'uppercase',
+            backgroundType: 'linear',
+            backgroundColor: '#0a0a0a',
+            gradientColor1: '#1a1a1a',
+            gradientColor2: '#0a0a0a',
+            gradientAngle: 180,
+            patternType: 'carbon',
+            patternColor: '#151515',
+            textShadow: true,
+            shadowColor: '#4facfe',
+            shadowBlur: 10,
+            textGlow: true,
+            glowColor: '#4facfe',
+            glowIntensity: 8,
+            borderWidth: 2,
+            borderColor: '#333333',
+            cornerRadius: 6
         }
     };
 
@@ -2932,6 +2759,23 @@ function applyThemeAndCloseModal(themeName) {
     }
 }
 
+// Expose all functions to global scope for onclick handlers
+// (Required because ES6 modules have their own scope)
+window.generator = null; // Will be set after initialization
+window.checkGenerator = checkGenerator;
+window.toggleTool = toggleTool;
+window.toggleThemesModal = toggleThemesModal;
+window.applyThemeAndCloseModal = applyThemeAndCloseModal;
+window.applyTheme = applyTheme;
+window.savePreset = savePreset;
+window.loadPreset = loadPreset;
+window.exportSettings = exportSettings;
+window.randomizeAll = randomizeAll;
+window.generateSignpack = generateSignpack;
+window.toggleHelpModal = toggleHelpModal;
+window.switchTab = switchTab;
+window.handleTabKeyDown = handleTabKeyDown;
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -2940,6 +2784,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Initialize the generator
         generator = new TrackmaniaSignpackGenerator();
+        window.generator = generator; // Expose to global scope for onclick handlers
 
         // Wait a bit for full initialization
         await new Promise(resolve => setTimeout(resolve, 100));
