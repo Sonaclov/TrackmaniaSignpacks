@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trackmania Checkpoint Signpack Generator</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Create custom checkpoint signs for Trackmania! Free web-based tool with 60+ fonts, effects, and templates. Share your designs with the community.">
+    <meta name="keywords" content="trackmania, checkpoint, signpack, generator, custom signs, trackmania maps, map editor">
+    <meta name="author" content="Trackmania Community">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sonaclov.github.io/TrackmaniaSignpacks/">
+    <meta property="og:title" content="Trackmania Checkpoint Signpack Generator">
+    <meta property="og:description" content="Create custom checkpoint signs for Trackmania! Free web-based tool with 60+ fonts, effects, and templates.">
+    <meta property="og:image" content="https://sonaclov.github.io/TrackmaniaSignpacks/preview.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://sonaclov.github.io/TrackmaniaSignpacks/">
+    <meta property="twitter:title" content="Trackmania Checkpoint Signpack Generator">
+    <meta property="twitter:description" content="Create custom checkpoint signs for Trackmania! Free web-based tool with 60+ fonts, effects, and templates.">
+    <meta property="twitter:image" content="https://sonaclov.github.io/TrackmaniaSignpacks/preview.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Core fonts loaded first -->
@@ -1028,11 +1048,23 @@
             </div>
 
             <div class="toolbar-group">
+                <button class="toolbar-btn" id="templatesBtn" title="Quick Start Templates">
+                    <i class="fas fa-layer-group"></i> Templates
+                </button>
                 <button class="toolbar-btn" onclick="randomizeAll()">
                     <i class="fas fa-random"></i> Randomize
                 </button>
                 <button class="toolbar-btn" onclick="toggleThemesModal()">
                     <i class="fas fa-swatchbook"></i> Themes
+                </button>
+            </div>
+
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="shareBtn" title="Share Your Design">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+                <button class="toolbar-btn" id="discordBtn" title="Discord Integration">
+                    <i class="fab fa-discord"></i> Discord
                 </button>
             </div>
 
@@ -1894,7 +1926,18 @@
             </div>
         </div>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-        <script src="script.js"></script>
+        <!-- Dependencies -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+                integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg=="
+                crossorigin="anonymous"
+                referrerpolicy="no-referrer"></script>
+
+        <!-- Application Modules -->
+        <script type="module" src="src/constants.js"></script>
+        <script type="module" src="src/utils.js"></script>
+        <script type="module" src="src/validation.js"></script>
+        <script type="module" src="src/templates.js"></script>
+        <script type="module" src="src/sharing.js"></script>
+        <script type="module" src="script.js"></script>
     </body>
     </html>
