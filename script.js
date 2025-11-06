@@ -368,24 +368,24 @@ class TrackmaniaSignpackGenerator {
 
     setupPackConfiguration() {
         // Toggle config sections based on checkboxes
-        const toggleConfig = (checkboxId, configId) => {
+        const toggleConfig = (checkboxId, configId, displayType = 'block') => {
             const checkbox = document.getElementById(checkboxId);
             const config = document.getElementById(configId);
             if (checkbox && config) {
                 checkbox.addEventListener('change', () => {
-                    config.style.display = checkbox.checked ? 'block' : 'none';
+                    config.style.display = checkbox.checked ? displayType : 'none';
                     this.updatePackSummary();
                     this.updatePreview();
                 });
                 // Initialize
-                config.style.display = checkbox.checked ? 'block' : 'none';
+                config.style.display = checkbox.checked ? displayType : 'none';
             }
         };
 
-        toggleConfig('includeCheckpoints', 'checkpointConfig');
-        toggleConfig('includeStart', 'startConfig');
-        toggleConfig('includeFinish', 'finishConfig');
-        toggleConfig('includeArrows', 'arrowConfig');
+        toggleConfig('includeCheckpoints', 'checkpointConfig', 'grid');
+        toggleConfig('includeStart', 'startConfig', 'block');
+        toggleConfig('includeFinish', 'finishConfig', 'block');
+        toggleConfig('includeArrows', 'arrowConfig', 'grid');
 
         // Update pack summary on any pack config change
         const packConfigElements = [
