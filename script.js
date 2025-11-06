@@ -45,6 +45,12 @@ class TrackmaniaSignpackGenerator {
         this.initialized = false;
         this.lockedSettings = new Set(); // Track locked settings
 
+        // Create debounced preview update for performance
+        this.debouncedPreviewUpdate = this.debounce(() => {
+            this.updatePreview();
+            this.updateStats();
+        }, 300);
+
         console.log('Initializing elements...');
         try {
             this.initializeElements();
@@ -289,13 +295,23 @@ class TrackmaniaSignpackGenerator {
     }
 
     bindEvents() {
-        // Update preview on any setting change
+        // Update preview on any setting change with performance optimization
         Object.values(this.elements).forEach(element => {
             if (element && (element.type !== 'button' && element.tagName !== 'DIV')) {
-                element.addEventListener('input', () => {
-                    this.updatePreview();
-                    this.updateStats();
-                });
+                // Use debounced update for text inputs and ranges (performance boost)
+                if (element.type === 'text' || element.type === 'number' || element.type === 'range') {
+                    element.addEventListener('input', () => {
+                        this.debouncedPreviewUpdate();
+                    });
+                } else {
+                    // Immediate update for other inputs
+                    element.addEventListener('input', () => {
+                        this.updatePreview();
+                        this.updateStats();
+                    });
+                }
+
+                // Immediate update on change events (checkboxes, selects, etc.)
                 element.addEventListener('change', () => {
                     this.updatePreview();
                     this.updateStats();
@@ -328,9 +344,58 @@ class TrackmaniaSignpackGenerator {
         this.elements.generateBtn.addEventListener('click', () => this.generateSignpack());
         this.elements.downloadBtn.addEventListener('click', () => this.downloadSignpack());
 
+        // Keyboard shortcuts
+        this.setupKeyboardShortcuts();
+
         // Initialize UI state
         this.toggleBackgroundControls();
         this.setupEffectToggles();
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + G: Generate
+            if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+                e.preventDefault();
+                if (!this.elements.generateBtn.disabled) {
+                    this.generateSignpack();
+                }
+            }
+
+            // R: Randomize (when not typing in input)
+            if (e.key === 'r' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+                e.preventDefault();
+                randomizeAll();
+            }
+
+            // Ctrl/Cmd + S: Save preset
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                savePreset();
+            }
+
+            // T: Toggle Themes modal
+            if (e.key === 't' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+                e.preventDefault();
+                toggleThemesModal();
+            }
+
+            // H or ?: Toggle Help modal
+            if ((e.key === 'h' || e.key === '?') && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+                e.preventDefault();
+                toggleHelpModal();
+            }
+
+            // Escape: Close modals
+            if (e.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display !== 'none') {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+        });
     }
 
     setupRangeSliders() {
@@ -368,24 +433,24 @@ class TrackmaniaSignpackGenerator {
 
     setupPackConfiguration() {
         // Toggle config sections based on checkboxes
-        const toggleConfig = (checkboxId, configId) => {
+        const toggleConfig = (checkboxId, configId, displayType = 'block') => {
             const checkbox = document.getElementById(checkboxId);
             const config = document.getElementById(configId);
             if (checkbox && config) {
                 checkbox.addEventListener('change', () => {
-                    config.style.display = checkbox.checked ? 'block' : 'none';
+                    config.style.display = checkbox.checked ? displayType : 'none';
                     this.updatePackSummary();
                     this.updatePreview();
                 });
                 // Initialize
-                config.style.display = checkbox.checked ? 'block' : 'none';
+                config.style.display = checkbox.checked ? displayType : 'none';
             }
         };
 
-        toggleConfig('includeCheckpoints', 'checkpointConfig');
-        toggleConfig('includeStart', 'startConfig');
-        toggleConfig('includeFinish', 'finishConfig');
-        toggleConfig('includeArrows', 'arrowConfig');
+        toggleConfig('includeCheckpoints', 'checkpointConfig', 'grid');
+        toggleConfig('includeStart', 'startConfig', 'block');
+        toggleConfig('includeFinish', 'finishConfig', 'block');
+        toggleConfig('includeArrows', 'arrowConfig', 'grid');
 
         // Update pack summary on any pack config change
         const packConfigElements = [
@@ -2343,6 +2408,85 @@ class TrackmaniaSignpackGenerator {
         link.click();
     }
 
+    validatePackConfiguration() {
+        const errors = [];
+
+        // Validate checkpoint range if enabled
+        if (this.elements.includeCheckpoints?.checked) {
+            const start = parseInt(this.elements.cpStartNumber?.value);
+            const end = parseInt(this.elements.cpEndNumber?.value);
+
+            if (isNaN(start) || isNaN(end)) {
+                errors.push('• Checkpoint range: Start and end numbers must be valid numbers');
+            } else if (start < 1) {
+                errors.push('• Checkpoint range: Start number must be at least 1');
+            } else if (end < start) {
+                errors.push('• Checkpoint range: End number must be greater than or equal to start number');
+            } else if (end > 999) {
+                errors.push('• Checkpoint range: End number cannot exceed 999');
+            } else if ((end - start + 1) > 500) {
+                errors.push('• Checkpoint range: Cannot generate more than 500 checkpoints (consider splitting into multiple packs)');
+            }
+
+            const prefix = this.elements.checkpointPrefix?.value?.trim();
+            if (!prefix || prefix.length === 0) {
+                errors.push('• Checkpoint prefix: Cannot be empty');
+            } else if (prefix.length > 50) {
+                errors.push('• Checkpoint prefix: Maximum 50 characters');
+            }
+        }
+
+        // Validate START text if enabled
+        if (this.elements.includeStart?.checked) {
+            const startText = this.elements.startText?.value?.trim();
+            if (!startText || startText.length === 0) {
+                errors.push('• START sign: Text cannot be empty');
+            } else if (startText.length > 100) {
+                errors.push('• START sign: Text maximum 100 characters');
+            }
+        }
+
+        // Validate FINISH text if enabled
+        if (this.elements.includeFinish?.checked) {
+            const finishText = this.elements.finishText?.value?.trim();
+            if (!finishText || finishText.length === 0) {
+                errors.push('• FINISH sign: Text cannot be empty');
+            } else if (finishText.length > 100) {
+                errors.push('• FINISH sign: Text maximum 100 characters');
+            }
+        }
+
+        // Validate at least one arrow is selected if arrows are enabled
+        if (this.elements.includeArrows?.checked) {
+            const hasArrow = ['arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight',
+                              'arrowUpLeft', 'arrowUpRight', 'arrowDownLeft', 'arrowDownRight']
+                .some(id => this.elements[id]?.checked);
+
+            if (!hasArrow) {
+                errors.push('• Arrows: At least one direction must be selected');
+            }
+        }
+
+        // Validate pack name
+        const packName = this.elements.packName?.value?.trim();
+        if (!packName || packName.length === 0) {
+            errors.push('• Pack name: Cannot be empty');
+        } else if (packName.length > 100) {
+            errors.push('• Pack name: Maximum 100 characters');
+        }
+
+        // Validate file prefix if provided
+        const filePrefix = this.elements.filePrefix?.value?.trim();
+        if (filePrefix && filePrefix.length > 50) {
+            errors.push('• File prefix: Maximum 50 characters');
+        }
+
+        return {
+            valid: errors.length === 0,
+            errors: errors
+        };
+    }
+
     getSignsToGenerate() {
         const signs = [];
         const checkpointPrefix = this.elements.checkpointPrefix?.value || 'Checkpoint';
@@ -2417,6 +2561,13 @@ class TrackmaniaSignpackGenerator {
         // Calculate total signs from all selected types
         const signsTogenerate = this.getSignsToGenerate();
         const totalSigns = signsTogenerate.length;
+
+        // Pre-generation validation
+        const validation = this.validatePackConfiguration();
+        if (!validation.valid) {
+            alert(`❌ Validation Error:\n\n${validation.errors.join('\n')}`);
+            return;
+        }
 
         if (totalSigns === 0) {
             alert('❌ Please select at least one sign type to generate');
@@ -2546,6 +2697,19 @@ class TrackmaniaSignpackGenerator {
 
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Debounce utility for performance optimization
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func.apply(this, args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
 
     updateStatus(message) {
@@ -2914,6 +3078,30 @@ function generateSignpack() {
     }
 }
 
+// Quick checkpoint range preset function
+function setCheckpointRange(start, end) {
+    const cpStartInput = document.getElementById('cpStartNumber');
+    const cpEndInput = document.getElementById('cpEndNumber');
+    const includeCheckpoints = document.getElementById('includeCheckpoints');
+
+    if (cpStartInput && cpEndInput) {
+        cpStartInput.value = start;
+        cpEndInput.value = end;
+
+        // Ensure checkpoints are enabled
+        if (includeCheckpoints && !includeCheckpoints.checked) {
+            includeCheckpoints.checked = true;
+            includeCheckpoints.dispatchEvent(new Event('change'));
+        }
+
+        // Trigger update
+        if (window.generator) {
+            window.generator.updatePackSummary();
+            window.generator.updatePreview();
+        }
+    }
+}
+
 // Tab switching functionality
 function switchTab(tabName) {
     console.log('Switching to tab:', tabName);
@@ -3014,6 +3202,7 @@ window.generateSignpack = generateSignpack;
 window.toggleHelpModal = toggleHelpModal;
 window.switchTab = switchTab;
 window.handleTabKeyDown = handleTabKeyDown;
+window.setCheckpointRange = setCheckpointRange;
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', async () => {

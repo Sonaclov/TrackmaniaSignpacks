@@ -230,22 +230,21 @@
 
         .preview-container {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .preview-row {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 12px;
         }
 
         .preview-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
         }
 
         .tab-panel {
@@ -607,9 +606,10 @@
 
         .preview-label {
             text-align: center;
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: var(--color-text-secondary);
-            margin-bottom: 10px;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
         .preview-examples {
@@ -780,6 +780,29 @@
 
         .preset-btn:hover {
             background: rgba(0, 217, 255, 0.25);
+        }
+
+        /* Quick preset range buttons */
+        .preset-range-btn {
+            background: rgba(0, 217, 255, 0.1);
+            color: var(--color-accent);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .preset-range-btn:hover {
+            background: rgba(0, 217, 255, 0.25);
+            border-color: var(--color-accent);
+            transform: translateY(-1px);
+        }
+
+        .preset-range-btn:active {
+            transform: translateY(0);
         }
 
         /* Animation Controls */
@@ -1239,7 +1262,31 @@
                             <li>Use the lock buttons to prevent specific settings from randomizing</li>
                             <li>Test your PNG URLs in a browser before using in Trackmania</li>
                             <li>Keep file names short and simple for better compatibility</li>
+                            <li>Use quick preset buttons (1-10, 1-50, 1-100, 1-200) for common ranges</li>
                         </ul>
+                    </div>
+
+                    <div style="background: rgba(0, 217, 255, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid var(--color-accent); margin-top: 15px;">
+                        <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h4>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 15px; line-height: 1.8; font-size: 0.9em;">
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">Ctrl/Cmd + G</kbd>
+                            <span>Generate signpack</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">Ctrl/Cmd + S</kbd>
+                            <span>Save preset</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">R</kbd>
+                            <span>Randomize all settings</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">T</kbd>
+                            <span>Toggle themes modal</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">H or ?</kbd>
+                            <span>Toggle help modal</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">Esc</kbd>
+                            <span>Close modals</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1271,141 +1318,99 @@
                                 <i class="fas fa-box"></i> Sign Types
                             </div>
 
-                            <div class="form-group">
-                                <label style="font-size: 0.75em; color: var(--color-text-secondary); margin-bottom: 12px; display: block;">
-                                    Select which sign types to include in your pack:
-                                </label>
-
-                                <div class="checkbox-group" style="margin-bottom: 15px;">
-                                    <input type="checkbox" id="includeCheckpoints" checked>
-                                    <label for="includeCheckpoints" style="margin-bottom: 0;">Checkpoint Numbers</label>
-                                </div>
-
-                                <div id="checkpointConfig" style="margin-left: 24px; margin-bottom: 15px;">
-                                    <div class="form-group">
-                                        <label for="checkpointPrefix">Text Prefix:</label>
-                                        <input type="text" id="checkpointPrefix" value="Checkpoint" placeholder="e.g., Checkpoint, CP, Stage">
+                            <!-- Compact Sign Type Grid -->
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px;">
+                                <!-- Checkpoints -->
+                                <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-accent);">
+                                    <div class="checkbox-group" style="margin-bottom: 8px;">
+                                        <input type="checkbox" id="includeCheckpoints" checked>
+                                        <label for="includeCheckpoints" style="margin-bottom: 0; font-weight: 600;">Checkpoint Numbers</label>
                                     </div>
-                                    <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;">
-                                        <div>
-                                            <label for="cpStartNumber">From:</label>
-                                            <input type="number" id="cpStartNumber" min="1" max="999" value="1">
+                                    <div id="checkpointConfig" style="display: grid; gap: 6px; font-size: 0.9em;">
+                                        <input type="text" id="checkpointPrefix" value="Checkpoint" placeholder="Prefix" style="padding: 6px;">
+                                        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center;">
+                                            <input type="number" id="cpStartNumber" min="1" max="999" value="1" placeholder="From" style="padding: 6px;">
+                                            <span style="color: var(--color-text-secondary); font-size: 0.85em;">→</span>
+                                            <input type="number" id="cpEndNumber" min="1" max="999" value="100" placeholder="To" style="padding: 6px;">
                                         </div>
-                                        <span style="color: var(--color-text-secondary);">to</span>
-                                        <div>
-                                            <label for="cpEndNumber">To:</label>
-                                            <input type="number" id="cpEndNumber" min="1" max="999" value="100">
+                                        <!-- Quick Presets -->
+                                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px;">
+                                            <button onclick="setCheckpointRange(1, 10)" class="preset-range-btn" title="1-10 checkpoints">1-10</button>
+                                            <button onclick="setCheckpointRange(1, 50)" class="preset-range-btn" title="1-50 checkpoints">1-50</button>
+                                            <button onclick="setCheckpointRange(1, 100)" class="preset-range-btn" title="1-100 checkpoints">1-100</button>
+                                            <button onclick="setCheckpointRange(1, 200)" class="preset-range-btn" title="1-200 checkpoints">1-200</button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="checkbox-group" style="margin-bottom: 15px;">
-                                    <input type="checkbox" id="includeStart">
-                                    <label for="includeStart" style="margin-bottom: 0;">Start Sign</label>
+                                <!-- Start & Finish in one row -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <!-- Start -->
+                                    <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px;">
+                                        <div class="checkbox-group" style="margin-bottom: 6px;">
+                                            <input type="checkbox" id="includeStart">
+                                            <label for="includeStart" style="margin-bottom: 0; font-weight: 600;">START</label>
+                                        </div>
+                                        <div id="startConfig" style="display: none;">
+                                            <input type="text" id="startText" value="START" placeholder="Text" style="padding: 6px; font-size: 0.9em; width: 100%;">
+                                        </div>
+                                    </div>
+
+                                    <!-- Finish -->
+                                    <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px;">
+                                        <div class="checkbox-group" style="margin-bottom: 6px;">
+                                            <input type="checkbox" id="includeFinish">
+                                            <label for="includeFinish" style="margin-bottom: 0; font-weight: 600;">FINISH</label>
+                                        </div>
+                                        <div id="finishConfig" style="display: none;">
+                                            <input type="text" id="finishText" value="FINISH" placeholder="Text" style="padding: 6px; font-size: 0.9em; width: 100%;">
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div id="startConfig" style="margin-left: 24px; margin-bottom: 15px; display: none;">
-                                    <div class="form-group">
-                                        <label for="startText">Start Text:</label>
-                                        <input type="text" id="startText" value="START" placeholder="START">
+                                <!-- Arrows -->
+                                <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px;">
+                                    <div class="checkbox-group" style="margin-bottom: 8px;">
+                                        <input type="checkbox" id="includeArrows">
+                                        <label for="includeArrows" style="margin-bottom: 0; font-weight: 600;">Directional Arrows</label>
                                     </div>
-                                </div>
-
-                                <div class="checkbox-group" style="margin-bottom: 15px;">
-                                    <input type="checkbox" id="includeFinish">
-                                    <label for="includeFinish" style="margin-bottom: 0;">Finish Sign</label>
-                                </div>
-
-                                <div id="finishConfig" style="margin-left: 24px; margin-bottom: 15px; display: none;">
-                                    <div class="form-group">
-                                        <label for="finishText">Finish Text:</label>
-                                        <input type="text" id="finishText" value="FINISH" placeholder="FINISH">
-                                    </div>
-                                </div>
-
-                                <div class="checkbox-group" style="margin-bottom: 15px;">
-                                    <input type="checkbox" id="includeArrows">
-                                    <label for="includeArrows" style="margin-bottom: 0;">Directional Arrows</label>
-                                </div>
-
-                                <div id="arrowConfig" style="margin-left: 24px; margin-bottom: 15px; display: none;">
-                                    <label style="font-size: 0.85em; margin-bottom: 8px; display: block;">Select Directions:</label>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowUp" checked>
-                                        <label for="arrowUp" style="margin-bottom: 0;">↑ Up</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowDown" checked>
-                                        <label for="arrowDown" style="margin-bottom: 0;">↓ Down</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowLeft" checked>
-                                        <label for="arrowLeft" style="margin-bottom: 0;">← Left</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowRight" checked>
-                                        <label for="arrowRight" style="margin-bottom: 0;">→ Right</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowUpLeft">
-                                        <label for="arrowUpLeft" style="margin-bottom: 0;">↖ Up-Left</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowUpRight">
-                                        <label for="arrowUpRight" style="margin-bottom: 0;">↗ Up-Right</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowDownLeft">
-                                        <label for="arrowDownLeft" style="margin-bottom: 0;">↙ Down-Left</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="arrowDownRight">
-                                        <label for="arrowDownRight" style="margin-bottom: 0;">↘ Down-Right</label>
+                                    <div id="arrowConfig" style="display: none; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.85em;">
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowUp" checked><label for="arrowUp" style="margin: 0;">↑ Up</label></div>
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowDown" checked><label for="arrowDown" style="margin: 0;">↓ Down</label></div>
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowLeft" checked><label for="arrowLeft" style="margin: 0;">← Left</label></div>
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowRight" checked><label for="arrowRight" style="margin: 0;">→ Right</label></div>
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowUpLeft"><label for="arrowUpLeft" style="margin: 0;">↖ Up-L</label></div>
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowUpRight"><label for="arrowUpRight" style="margin: 0;">↗ Up-R</label></div>
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowDownLeft"><label for="arrowDownLeft" style="margin: 0;">↙ Down-L</label></div>
+                                        <div class="checkbox-group"><input type="checkbox" id="arrowDownRight"><label for="arrowDownRight" style="margin: 0;">↘ Down-R</label></div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="tool-group">
-                            <div class="tool-group-header">
-                                <i class="fas fa-list"></i> Pack Contents
-                            </div>
-                            <div id="packSummary" style="padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 6px; font-size: 0.85em;">
-                                <div style="margin-bottom: 8px;">
-                                    <strong style="color: var(--color-accent);">Signs to Generate:</strong>
+                            <!-- Compact Pack Summary -->
+                            <div style="background: rgba(0, 217, 255, 0.08); border: 1px solid rgba(0, 217, 255, 0.2); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <strong style="font-size: 0.85em; color: var(--color-accent);"><i class="fas fa-list"></i> Pack Contents</strong>
+                                    <strong style="font-size: 1.1em; color: var(--color-accent);"><span id="totalSigns">100</span> signs</strong>
                                 </div>
-                                <ul id="packList" style="margin-left: 20px; line-height: 1.6; color: var(--color-text-secondary);">
+                                <ul id="packList" style="margin: 0; padding-left: 20px; font-size: 0.8em; line-height: 1.4; color: var(--color-text-secondary);">
                                     <li>Checkpoints: 1-100 (100 signs)</li>
                                 </ul>
-                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-border);">
-                                    <strong>Total: <span id="totalSigns" style="color: var(--color-accent);">100</span> signs</strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tool-group">
-                            <div class="tool-group-header">
-                                <i class="fas fa-cog"></i> File Options
                             </div>
 
-                            <div class="form-group">
-                                <label for="packName">Pack Name:</label>
-                                <input type="text" id="packName" placeholder="My Signpack" value="Trackmania Signs">
+                            <!-- Compact File Options -->
+                            <div class="form-group" style="margin-bottom: 8px;">
+                                <input type="text" id="packName" placeholder="Pack Name" value="Trackmania Signs" style="font-weight: 600;">
                             </div>
-
-                            <div class="form-group">
-                                <label for="filePrefix">File Prefix (optional):</label>
-                                <input type="text" id="filePrefix" placeholder="e.g., MyPack" maxlength="20" value="">
-                                <small style="color: var(--color-text-secondary); font-size: 0.75em; margin-top: 4px; display: block;">
-                                    Leave blank for simple filenames (start.png, finish.png, arrow-up.png, etc.)
+                            <div class="form-group" style="margin-bottom: 8px;">
+                                <input type="text" id="filePrefix" placeholder="File Prefix (optional)" maxlength="20" value="" style="font-size: 0.9em;">
+                                <small style="color: var(--color-text-secondary); font-size: 0.7em; display: block; margin-top: 2px;">
+                                    Optional prefix for all files
                                 </small>
                             </div>
-
-                            <div class="form-group">
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="includeSettingsJSON" checked>
-                                    <label for="includeSettingsJSON">Include settings.json (for re-import)</label>
-                                </div>
+                            <div class="checkbox-group" style="font-size: 0.85em;">
+                                <input type="checkbox" id="includeSettingsJSON" checked>
+                                <label for="includeSettingsJSON" style="margin: 0;">Include settings.json</label>
                             </div>
                         </div>
                     </div>
@@ -1931,25 +1936,21 @@
 
                 <div class="preview-area">
                     <div class="preview-container">
-                        <div class="preview-row">
-                            <div class="preview-item">
-                                <span class="preview-label">Checkpoint 1</span>
-                                <canvas id="previewCanvas1" class="preview-canvas" width="300" height="50"></canvas>
-                            </div>
-                            <div class="preview-item">
-                                <span class="preview-label">START</span>
-                                <canvas id="previewCanvasStart" class="preview-canvas" width="300" height="50"></canvas>
-                            </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Checkpoint</span>
+                            <canvas id="previewCanvas1" class="preview-canvas" width="300" height="50"></canvas>
                         </div>
-                        <div class="preview-row">
-                            <div class="preview-item">
-                                <span class="preview-label">Arrow Right →</span>
-                                <canvas id="previewCanvasArrow" class="preview-canvas" width="300" height="50"></canvas>
-                            </div>
-                            <div class="preview-item">
-                                <span class="preview-label">FINISH</span>
-                                <canvas id="previewCanvasFinish" class="preview-canvas" width="300" height="50"></canvas>
-                            </div>
+                        <div class="preview-item">
+                            <span class="preview-label">START</span>
+                            <canvas id="previewCanvasStart" class="preview-canvas" width="300" height="50"></canvas>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Arrow →</span>
+                            <canvas id="previewCanvasArrow" class="preview-canvas" width="300" height="50"></canvas>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">FINISH</span>
+                            <canvas id="previewCanvasFinish" class="preview-canvas" width="300" height="50"></canvas>
                         </div>
                     </div>
 
