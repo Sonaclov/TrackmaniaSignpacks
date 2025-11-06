@@ -782,6 +782,29 @@
             background: rgba(0, 217, 255, 0.25);
         }
 
+        /* Quick preset range buttons */
+        .preset-range-btn {
+            background: rgba(0, 217, 255, 0.1);
+            color: var(--color-accent);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .preset-range-btn:hover {
+            background: rgba(0, 217, 255, 0.25);
+            border-color: var(--color-accent);
+            transform: translateY(-1px);
+        }
+
+        .preset-range-btn:active {
+            transform: translateY(0);
+        }
+
         /* Animation Controls */
         .animation-preview {
             margin-top: 15px;
@@ -1239,7 +1262,31 @@
                             <li>Use the lock buttons to prevent specific settings from randomizing</li>
                             <li>Test your PNG URLs in a browser before using in Trackmania</li>
                             <li>Keep file names short and simple for better compatibility</li>
+                            <li>Use quick preset buttons (1-10, 1-50, 1-100, 1-200) for common ranges</li>
                         </ul>
+                    </div>
+
+                    <div style="background: rgba(0, 217, 255, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid var(--color-accent); margin-top: 15px;">
+                        <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h4>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 15px; line-height: 1.8; font-size: 0.9em;">
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">Ctrl/Cmd + G</kbd>
+                            <span>Generate signpack</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">Ctrl/Cmd + S</kbd>
+                            <span>Save preset</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">R</kbd>
+                            <span>Randomize all settings</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">T</kbd>
+                            <span>Toggle themes modal</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">H or ?</kbd>
+                            <span>Toggle help modal</span>
+
+                            <kbd style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 3px; font-family: monospace;">Esc</kbd>
+                            <span>Close modals</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1285,6 +1332,13 @@
                                             <input type="number" id="cpStartNumber" min="1" max="999" value="1" placeholder="From" style="padding: 6px;">
                                             <span style="color: var(--color-text-secondary); font-size: 0.85em;">→</span>
                                             <input type="number" id="cpEndNumber" min="1" max="999" value="100" placeholder="To" style="padding: 6px;">
+                                        </div>
+                                        <!-- Quick Presets -->
+                                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px;">
+                                            <button onclick="setCheckpointRange(1, 10)" class="preset-range-btn" title="1-10 checkpoints">1-10</button>
+                                            <button onclick="setCheckpointRange(1, 50)" class="preset-range-btn" title="1-50 checkpoints">1-50</button>
+                                            <button onclick="setCheckpointRange(1, 100)" class="preset-range-btn" title="1-100 checkpoints">1-100</button>
+                                            <button onclick="setCheckpointRange(1, 200)" class="preset-range-btn" title="1-200 checkpoints">1-200</button>
                                         </div>
                                     </div>
                                 </div>
