@@ -49,6 +49,34 @@
     </noscript>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* =======================
+           60-30-10 COLOR SYSTEM
+           =======================
+           60% Dominant:  #1a1d29 (Dark Blue-Slate) - Backgrounds
+           30% Secondary: #2a2f3f (Medium Slate) - Panels, Cards
+           10% Accent:    #00d9ff (Electric Cyan) - CTAs, Highlights
+
+           Supporting:
+           - Text Primary:   #e8eaed
+           - Text Secondary: #9aa0a6
+           - Success:        #10b981
+           - Warning:        #f59e0b
+           - Error:          #ef4444
+        */
+
+        :root {
+            --color-dominant: #1a1d29;
+            --color-secondary: #2a2f3f;
+            --color-accent: #00d9ff;
+            --color-accent-hover: #00b8d9;
+            --color-text-primary: #e8eaed;
+            --color-text-secondary: #9aa0a6;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            --color-border: rgba(255, 255, 255, 0.1);
+        }
+
         * {
             color-scheme: dark;
             margin: 0;
@@ -58,8 +86,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
+            background: var(--color-dominant);
+            color: var(--color-text-primary);
             height: 100vh;
             overflow: hidden;
         }
@@ -68,14 +96,14 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--color-dominant);
         }
 
         /* Toolbar Styles */
         .toolbar {
-            background: rgba(0, 0, 0, 0.95);
+            background: var(--color-secondary);
             backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 1px solid var(--color-border);
             padding: 12px 20px;
             display: flex;
             align-items: center;
@@ -99,8 +127,8 @@
 
         .toolbar-btn {
             background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
             padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
@@ -112,14 +140,14 @@
         }
 
         .toolbar-btn:hover {
-            background: rgba(79, 172, 254, 0.2);
-            border-color: rgba(79, 172, 254, 0.5);
+            background: rgba(0, 217, 255, 0.15);
+            border-color: var(--color-accent);
         }
 
         .toolbar-btn.active {
-            background: rgba(79, 172, 254, 0.3);
-            border-color: #4facfe;
-            color: #4facfe;
+            background: rgba(0, 217, 255, 0.25);
+            border-color: var(--color-accent);
+            color: var(--color-accent);
         }
 
         .main-workspace {
@@ -130,9 +158,9 @@
 
         .properties-panel {
             width: 320px;
-            background: rgba(0, 0, 0, 0.95);
+            background: var(--color-secondary);
             backdrop-filter: blur(25px);
-            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            border-right: 1px solid var(--color-border);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -140,8 +168,8 @@
 
         .panel-tabs {
             display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--color-border);
         }
 
         .panel-tab {
@@ -156,13 +184,13 @@
         }
 
         .panel-tab:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 217, 255, 0.1);
         }
 
         .panel-tab.active {
-            background: rgba(79, 172, 254, 0.15);
-            border-bottom-color: #4facfe;
-            color: #4facfe;
+            background: rgba(0, 217, 255, 0.15);
+            border-bottom-color: var(--color-accent);
+            color: var(--color-accent);
         }
 
         .panel-content {
@@ -180,8 +208,8 @@
 
         .canvas-header {
             padding: 20px 30px;
-            background: rgba(0, 0, 0, 0.5);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-secondary);
+            border-bottom: 1px solid var(--color-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -240,12 +268,12 @@
         }
 
         .themes-modal-content {
-            background: rgba(0, 0, 0, 0.95);
+            background: var(--color-secondary);
             border-radius: 12px;
             padding: 24px;
             max-width: 500px;
             width: 90%;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid var(--color-border);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
@@ -255,12 +283,12 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--color-border);
         }
 
         .themes-modal-header h3 {
             margin: 0;
-            color: #4facfe;
+            color: var(--color-accent);
             font-size: 1.2em;
         }
 
@@ -291,7 +319,7 @@
 
         .theme-card {
             background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--color-border);
             border-radius: 8px;
             padding: 16px;
             cursor: pointer;
@@ -300,19 +328,19 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            color: #ffffff;
+            color: var(--color-text-primary);
             font-size: 0.85em;
         }
 
         .theme-card:hover {
-            background: rgba(79, 172, 254, 0.2);
-            border-color: #4facfe;
+            background: rgba(0, 217, 255, 0.15);
+            border-color: var(--color-accent);
             transform: translateY(-2px);
         }
 
         .theme-card i {
             font-size: 1.5em;
-            color: #4facfe;
+            color: var(--color-accent);
         }
 
         @media (max-width: 600px) {
@@ -338,8 +366,8 @@
             border-radius: 6px;
             font-weight: 600;
             font-size: 0.85em;
-            color: #4facfe;
-            border-left: 3px solid #4facfe;
+            color: var(--color-accent);
+            border-left: 3px solid var(--color-accent);
         }
 
         .tool-section {
@@ -366,13 +394,13 @@
         }
 
         .tool-header:focus {
-            outline: 1px solid #4facfe;
+            outline: 1px solid var(--color-accent);
             outline-offset: -1px;
         }
 
         .tool-header.active {
-            background: rgba(79, 172, 254, 0.15);
-            color: #4facfe;
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--color-accent);
         }
 
 
@@ -411,25 +439,25 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: #e0e0e0;
+            color: var(--color-text-primary);
             font-size: 0.9em;
         }
 
         input, select, textarea {
             width: 100%;
             padding: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--color-border);
             border-radius: 8px;
             font-size: 14px;
             background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
+            color: var(--color-text-primary);
             transition: all 0.3s ease;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
         }
 
         .color-input {
@@ -451,11 +479,12 @@
         .range-value {
             min-width: 50px;
             text-align: center;
-            background: rgba(79, 172, 254, 0.2);
+            background: rgba(0, 217, 255, 0.15);
             padding: 5px 10px;
             border-radius: 4px;
             font-size: 0.85em;
             font-weight: 600;
+            color: var(--color-accent);
         }
 
         .checkbox-group {
@@ -505,8 +534,8 @@
 
         .main-header {
             padding: 20px 30px;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-secondary);
+            border-bottom: 1px solid var(--color-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -524,7 +553,7 @@
         }
 
         .generate-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -540,7 +569,7 @@
 
         .generate-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.4);
         }
 
         .generate-btn:disabled {
@@ -557,7 +586,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(79, 172, 254, 0.1), transparent);
+            background: linear-gradient(45deg, transparent, rgba(0, 217, 255, 0.1), transparent);
             animation: shimmer 3s infinite;
         }
 
@@ -579,7 +608,7 @@
         .preview-label {
             text-align: center;
             font-size: 0.8em;
-            color: #bdc3c7;
+            color: var(--color-text-secondary);
             margin-bottom: 10px;
         }
 
@@ -601,7 +630,7 @@
         .preview-info h3 {
             font-size: 1em;
             margin-bottom: 5px;
-            color: #4facfe;
+            color: var(--color-accent);
         }
 
         .preview-info p {
@@ -610,10 +639,10 @@
         }
 
         .stats-panel {
-            background: rgba(0, 0, 0, 0.4);
+            background: var(--color-secondary);
             border-radius: 15px;
             padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--color-border);
             overflow-y: auto;
         }
 
@@ -622,7 +651,7 @@
         }
 
         .stats-section h4 {
-            color: #4facfe;
+            color: var(--color-accent);
             margin-bottom: 12px;
             font-size: 1em;
             font-weight: 600;
@@ -633,7 +662,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 6px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--color-border);
         }
 
         .stat-item:last-child {
@@ -642,13 +671,13 @@
 
         .stat-label {
             font-size: 0.8em;
-            opacity: 0.8;
+            color: var(--color-text-secondary);
         }
 
         .stat-value {
             font-weight: 600;
             font-size: 0.8em;
-            color: #4facfe;
+            color: var(--color-accent);
         }
 
         .progress-container {
@@ -656,10 +685,10 @@
             bottom: 20px;
             left: 420px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.9);
+            background: var(--color-secondary);
             padding: 20px;
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--color-border);
             display: none;
             z-index: 1000;
         }
@@ -679,7 +708,7 @@
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
             width: 0%;
             transition: width 0.3s ease;
             border-radius: 4px;
@@ -688,11 +717,11 @@
         .status {
             text-align: center;
             font-weight: 500;
-            color: #e0e0e0;
+            color: var(--color-text-primary);
         }
 
         .download-section {
-            background: linear-gradient(135deg, #00c851, #007e33);
+            background: linear-gradient(135deg, var(--color-success), #059669);
             padding: 20px;
             border-radius: 10px;
             margin-top: 15px;
@@ -739,8 +768,8 @@
         }
 
         .preset-btn {
-            background: rgba(79, 172, 254, 0.2);
-            color: #4facfe;
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--color-accent);
             border: none;
             padding: 5px 10px;
             border-radius: 4px;
@@ -750,7 +779,7 @@
         }
 
         .preset-btn:hover {
-            background: rgba(79, 172, 254, 0.4);
+            background: rgba(0, 217, 255, 0.25);
         }
 
         /* Animation Controls */
@@ -782,7 +811,7 @@
         }
 
         .anim-btn.active {
-            background: #4facfe;
+            background: var(--color-accent);
         }
 
         /* Responsive */
@@ -876,13 +905,13 @@
 
         .sidebar::-webkit-scrollbar-thumb,
         .stats-panel::-webkit-scrollbar-thumb {
-            background: rgba(79, 172, 254, 0.5);
+            background: rgba(0, 217, 255, 0.5);
             border-radius: 3px;
         }
 
         .sidebar::-webkit-scrollbar-thumb:hover,
         .stats-panel::-webkit-scrollbar-thumb:hover {
-            background: rgba(79, 172, 254, 0.7);
+            background: var(--color-accent);
         }
 
         /* Special Effect Indicators */
@@ -1013,9 +1042,9 @@
         }
 
         .lock-btn:hover {
-            background: rgba(79, 172, 254, 0.1);
-            border-color: #4facfe;
-            color: #4facfe;
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--color-accent);
+            color: var(--color-accent);
         }
 
         .lock-btn.locked {
@@ -1069,7 +1098,7 @@
             </div>
 
             <div class="toolbar-group">
-                <button id="generateBtn" class="toolbar-btn" onclick="generateSignpack()" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); font-weight: bold;" disabled>
+                <button id="generateBtn" class="toolbar-btn" onclick="generateSignpack()" style="background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%); font-weight: bold;" disabled>
                     <i class="fas fa-spinner fa-spin"></i> Loading...
                 </button>
                 <button class="toolbar-btn" onclick="checkGenerator()" title="Debug: Check Generator Status" style="font-size: 0.8em;">
@@ -1158,14 +1187,14 @@
                 </div>
                 <div style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">
                     <div style="margin-bottom: 20px;">
-                        <h4 style="color: #4facfe; margin-bottom: 10px;"><i class="fas fa-info-circle"></i> What is this?</h4>
+                        <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-info-circle"></i> What is this?</h4>
                         <p style="margin-bottom: 15px; line-height: 1.6;">
                             This tool generates custom checkpoint signpacks for Trackmania. Create personalized signs with custom fonts, colors, effects and positioning.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <h4 style="color: #4facfe; margin-bottom: 10px;"><i class="fas fa-cogs"></i> How to Use</h4>
+                        <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-cogs"></i> How to Use</h4>
                         <ol style="margin-left: 20px; line-height: 1.6;">
                             <li>Customize your sign style in the Basic, Style, and Effects tabs</li>
                             <li>Configure your signpack settings (prefix, number range, etc.)</li>
@@ -1174,18 +1203,18 @@
                         </ol>
                     </div>
 
-                    <div style="margin-bottom: 20px; background: rgba(79, 172, 254, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid #4facfe;">
-                        <h4 style="color: #4facfe; margin-bottom: 10px;"><i class="fas fa-cloud-upload-alt"></i> Important: Web Hosting Required</h4>
+                    <div style="margin-bottom: 20px; background: rgba(0, 217, 255, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid var(--color-accent);">
+                        <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-cloud-upload-alt"></i> Important: Web Hosting Required</h4>
                         <p style="margin-bottom: 10px; line-height: 1.6;">
                             <strong>For other players to see your signs:</strong> You must upload the PNG files to a web server. Local files only work for the map creator.
                         </p>
                         <p style="margin-bottom: 10px; line-height: 1.6;">
-                            <strong>Recommended:</strong> <a href="https://dashmap.live" target="_blank" style="color: #4facfe; text-decoration: underline;">dashmap.live</a> - Simple drag & drop CDN hosting
+                            <strong>Recommended:</strong> <a href="https://dashmap.live" target="_blank" style="color: var(--color-accent); text-decoration: underline;">dashmap.live</a> - Simple drag & drop CDN hosting
                         </p>
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <h4 style="color: #4facfe; margin-bottom: 10px;"><i class="fas fa-map"></i> Installation Steps</h4>
+                        <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-map"></i> Installation Steps</h4>
                         <ol style="margin-left: 20px; line-height: 1.6;">
                             <li><strong>Generate</strong> your signpack ZIP file</li>
                             <li><strong>Extract</strong> the PNG files from the ZIP</li>
@@ -1197,15 +1226,15 @@
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <h4 style="color: #4facfe; margin-bottom: 10px;"><i class="fas fa-file-archive"></i> Generated Files</h4>
+                        <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-file-archive"></i> Generated Files</h4>
                         <ul style="margin-left: 20px; line-height: 1.6;">
                             <li><strong>PNG files:</strong> Your custom checkpoint signs (ready to use)</li>
                             <li><strong>settings.json:</strong> Settings for re-importing (optional)</li>
                         </ul>
                     </div>
 
-                    <div style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid #4caf50;">
-                        <h4 style="color: #4caf50; margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid var(--color-success);">
+                        <h4 style="color: var(--color-success); margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> Pro Tips</h4>
                         <ul style="margin-left: 20px; line-height: 1.6;">
                             <li>Use the lock buttons to prevent specific settings from randomizing</li>
                             <li>Test your PNG URLs in a browser before using in Trackmania</li>
@@ -1844,8 +1873,8 @@
                                 </div>
                             </div>
 
-                            <div class="form-group" style="background: rgba(79, 172, 254, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid #4facfe;">
-                                <small style="color: #4facfe; font-size: 0.85em;">
+                            <div class="form-group" style="background: rgba(0, 217, 255, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--color-accent);">
+                                <small style="color: var(--color-accent); font-size: 0.85em;">
                                     <i class="fas fa-info-circle"></i> <strong>Note:</strong>
                                     Upload the generated PNG files to a web server for other players to see your custom signs.
                                     Try <strong>dashmap.live</strong> for easy drag & drop CDN hosting.
@@ -1907,7 +1936,7 @@
                 <button class="download-btn" id="downloadBtn"><i class="fas fa-download"></i> Download Signpack ZIP</button>
 
                 <div style="margin-top: 20px; background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; text-align: left;">
-                    <h4 style="color: #4facfe; margin-bottom: 10px;"><i class="fas fa-info-circle"></i>Installation Instructions</h4>
+                    <h4 style="color: var(--color-accent); margin-bottom: 10px;"><i class="fas fa-info-circle"></i>Installation Instructions</h4>
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 0.9em; margin-top: 8px;">
                             <ol style="margin-left: 15px; font-size: 0.85em;">
@@ -1916,17 +1945,17 @@
                                 <li>Test your map to ensure signs load correctly</li>
                             </ol>
                         </div>
-                        <div style="font-size: 0.85em; margin-top: 8px; padding: 8px; background: rgba(79, 172, 254, 0.1); border-radius: 4px;">
+                        <div style="font-size: 0.85em; margin-top: 8px; padding: 8px; background: rgba(0, 217, 255, 0.1); border-radius: 4px;">
                             <strong>Note:</strong> Local PNG files work for you as the creator, but other players need web-hosted files to see your custom signs.
                         </div>
                     </div>
 
-                    <div style="background: rgba(76, 175, 80, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid #4caf50;">
-                        <strong style="color: #4caf50;">💡 Hosting Options:</strong>
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-success);">
+                        <strong style="color: var(--color-success);">💡 Hosting Options:</strong>
                         <div style="font-size: 0.85em; margin-top: 8px;">
                             <p><strong>🚀 Recommended: Dashmap.live</strong> - Simple drag & drop CDN (perfect for signs)</p>
                             <p>Alternatively, use any web hosting service that provides direct file access</p>
-                            <div style="margin-top: 8px; padding: 6px; background: rgba(79, 172, 254, 0.1); border-radius: 4px;">
+                            <div style="margin-top: 8px; padding: 6px; background: rgba(0, 217, 255, 0.1); border-radius: 4px;">
                             </div>
                         </div>
                     </div>
