@@ -68,7 +68,8 @@ class TrackmaniaSignpackGenerator {
 
         console.log('Loading fonts...');
         this.loadFonts().then(() => {
-            console.log('Fonts loaded, updating preview...');
+            console.log('Fonts loaded, updating font dropdown...');
+            this.updateFontDropdown(); // Filter to show only loaded fonts
             this.updatePreview();
             this.updateStats();
             this.initialized = true;
@@ -84,6 +85,7 @@ class TrackmaniaSignpackGenerator {
 
         }).catch(error => {
             console.error('Error during font loading:', error);
+            this.updateFontDropdown(); // Still update dropdown with whatever fonts loaded
             this.initialized = true; // Still mark as initialized so basic functions work
 
             // Enable the generate button even if fonts failed
@@ -105,6 +107,10 @@ class TrackmaniaSignpackGenerator {
             'Share Tech Mono', 'Electrolize', 'Michroma', 'Iceland', 'Chakra Petch'
         ];
 
+        // Add system fonts that are always available
+        const systemFonts = ['Arial', 'Impact', 'Georgia', 'Verdana', 'Times New Roman', 'Courier New'];
+        systemFonts.forEach(font => this.loadedFonts.add(font));
+
         if ('fonts' in document) {
             for (const fontFamily of fontList) {
                 try {
@@ -114,11 +120,44 @@ class TrackmaniaSignpackGenerator {
                     console.warn(`Failed to load font: ${fontFamily}`);
                 }
             }
-            console.log(`Loaded ${this.loadedFonts.size}/${fontList.length} fonts`);
+            console.log(`Loaded ${this.loadedFonts.size}/${fontList.length + systemFonts.length} fonts`);
         }
 
         // Fallback for browsers without Font Loading API
         await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    updateFontDropdown() {
+        const fontSelect = document.getElementById('fontFamily');
+        if (!fontSelect) {
+            console.warn('Font dropdown not found');
+            return;
+        }
+
+        const currentValue = fontSelect.value;
+
+        // Get all options and filter to only show loaded fonts
+        const allOptions = Array.from(fontSelect.querySelectorAll('option'));
+
+        allOptions.forEach(option => {
+            const fontFamily = option.value;
+            // Keep system fonts and loaded fonts, hide others
+            if (this.loadedFonts.has(fontFamily)) {
+                option.style.display = '';
+                option.disabled = false;
+            } else {
+                // Hide unloaded fonts
+                option.style.display = 'none';
+                option.disabled = true;
+            }
+        });
+
+        // If current selection wasn't loaded, switch to a loaded font
+        if (!this.loadedFonts.has(currentValue) && this.loadedFonts.size > 0) {
+            fontSelect.value = Array.from(this.loadedFonts)[0];
+        }
+
+        console.log(`Font dropdown updated: ${this.loadedFonts.size} fonts available`);
     }
 
     initializeElements() {
@@ -2687,6 +2726,8 @@ function generateSignpack() {
 
 // Tab switching functionality
 function switchTab(tabName) {
+    console.log('Switching to tab:', tabName);
+
     // Hide all tab panels
     document.querySelectorAll('.tab-panel').forEach(panel => {
         panel.style.display = 'none';
@@ -2698,10 +2739,18 @@ function switchTab(tabName) {
         tab.setAttribute('aria-selected', 'false');
     });
 
-    // Show selected panel and activate tab
-    document.getElementById(tabName + '-panel').style.display = 'block';
-    event.target.classList.add('active');
-    event.target.setAttribute('aria-selected', 'true');
+    // Show selected panel and activate corresponding tab
+    const panel = document.getElementById(tabName + '-panel');
+    const tab = document.getElementById(tabName + '-tab');
+
+    if (panel) {
+        panel.style.display = 'block';
+    }
+
+    if (tab) {
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+    }
 }
 
 // Keyboard navigation for tabs
