@@ -1249,8 +1249,11 @@
             <!-- Properties Panel -->
             <div class="properties-panel">
                 <div class="panel-tabs" role="tablist">
-                    <div id="basic-tab" class="panel-tab active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('basic')" onkeydown="handleTabKeyDown(event, 'basic')">
-                        <i class="fas fa-font"></i> Basic
+                    <div id="pack-tab" class="panel-tab active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('pack')" onkeydown="handleTabKeyDown(event, 'pack')">
+                        <i class="fas fa-box"></i> Pack
+                    </div>
+                    <div id="basic-tab" class="panel-tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('basic')" onkeydown="handleTabKeyDown(event, 'basic')">
+                        <i class="fas fa-font"></i> Text
                     </div>
                     <div id="style-tab" class="panel-tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('style')" onkeydown="handleTabKeyDown(event, 'style')">
                         <i class="fas fa-palette"></i> Style
@@ -1261,6 +1264,152 @@
                 </div>
 
                 <div class="panel-content">
+                    <!-- Pack Tab -->
+                    <div id="pack-panel" class="tab-panel" role="tabpanel" aria-labelledby="pack-tab">
+                        <div class="tool-group">
+                            <div class="tool-group-header">
+                                <i class="fas fa-box"></i> Sign Types
+                            </div>
+
+                            <div class="form-group">
+                                <label style="font-size: 0.75em; color: var(--color-text-secondary); margin-bottom: 12px; display: block;">
+                                    Select which sign types to include in your pack:
+                                </label>
+
+                                <div class="checkbox-group" style="margin-bottom: 15px;">
+                                    <input type="checkbox" id="includeCheckpoints" checked>
+                                    <label for="includeCheckpoints" style="margin-bottom: 0;">Checkpoint Numbers</label>
+                                </div>
+
+                                <div id="checkpointConfig" style="margin-left: 24px; margin-bottom: 15px;">
+                                    <div class="form-group">
+                                        <label for="checkpointPrefix">Text Prefix:</label>
+                                        <input type="text" id="checkpointPrefix" value="Checkpoint" placeholder="e.g., Checkpoint, CP, Stage">
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;">
+                                        <div>
+                                            <label for="cpStartNumber">From:</label>
+                                            <input type="number" id="cpStartNumber" min="1" max="999" value="1">
+                                        </div>
+                                        <span style="color: var(--color-text-secondary);">to</span>
+                                        <div>
+                                            <label for="cpEndNumber">To:</label>
+                                            <input type="number" id="cpEndNumber" min="1" max="999" value="100">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="checkbox-group" style="margin-bottom: 15px;">
+                                    <input type="checkbox" id="includeStart">
+                                    <label for="includeStart" style="margin-bottom: 0;">Start Sign</label>
+                                </div>
+
+                                <div id="startConfig" style="margin-left: 24px; margin-bottom: 15px; display: none;">
+                                    <div class="form-group">
+                                        <label for="startText">Start Text:</label>
+                                        <input type="text" id="startText" value="START" placeholder="START">
+                                    </div>
+                                </div>
+
+                                <div class="checkbox-group" style="margin-bottom: 15px;">
+                                    <input type="checkbox" id="includeFinish">
+                                    <label for="includeFinish" style="margin-bottom: 0;">Finish Sign</label>
+                                </div>
+
+                                <div id="finishConfig" style="margin-left: 24px; margin-bottom: 15px; display: none;">
+                                    <div class="form-group">
+                                        <label for="finishText">Finish Text:</label>
+                                        <input type="text" id="finishText" value="FINISH" placeholder="FINISH">
+                                    </div>
+                                </div>
+
+                                <div class="checkbox-group" style="margin-bottom: 15px;">
+                                    <input type="checkbox" id="includeArrows">
+                                    <label for="includeArrows" style="margin-bottom: 0;">Directional Arrows</label>
+                                </div>
+
+                                <div id="arrowConfig" style="margin-left: 24px; margin-bottom: 15px; display: none;">
+                                    <label style="font-size: 0.85em; margin-bottom: 8px; display: block;">Select Directions:</label>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowUp" checked>
+                                        <label for="arrowUp" style="margin-bottom: 0;">↑ Up</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowDown" checked>
+                                        <label for="arrowDown" style="margin-bottom: 0;">↓ Down</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowLeft" checked>
+                                        <label for="arrowLeft" style="margin-bottom: 0;">← Left</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowRight" checked>
+                                        <label for="arrowRight" style="margin-bottom: 0;">→ Right</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowUpLeft">
+                                        <label for="arrowUpLeft" style="margin-bottom: 0;">↖ Up-Left</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowUpRight">
+                                        <label for="arrowUpRight" style="margin-bottom: 0;">↗ Up-Right</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowDownLeft">
+                                        <label for="arrowDownLeft" style="margin-bottom: 0;">↙ Down-Left</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="arrowDownRight">
+                                        <label for="arrowDownRight" style="margin-bottom: 0;">↘ Down-Right</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tool-group">
+                            <div class="tool-group-header">
+                                <i class="fas fa-list"></i> Pack Contents
+                            </div>
+                            <div id="packSummary" style="padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 6px; font-size: 0.85em;">
+                                <div style="margin-bottom: 8px;">
+                                    <strong style="color: var(--color-accent);">Signs to Generate:</strong>
+                                </div>
+                                <ul id="packList" style="margin-left: 20px; line-height: 1.6; color: var(--color-text-secondary);">
+                                    <li>Checkpoints: 1-100 (100 signs)</li>
+                                </ul>
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-border);">
+                                    <strong>Total: <span id="totalSigns" style="color: var(--color-accent);">100</span> signs</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tool-group">
+                            <div class="tool-group-header">
+                                <i class="fas fa-cog"></i> File Options
+                            </div>
+
+                            <div class="form-group">
+                                <label for="packName">Pack Name:</label>
+                                <input type="text" id="packName" placeholder="My Signpack" value="Trackmania Signs">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="filePrefix">File Prefix (optional):</label>
+                                <input type="text" id="filePrefix" placeholder="e.g., MyPack" maxlength="20" value="">
+                                <small style="color: var(--color-text-secondary); font-size: 0.75em; margin-top: 4px; display: block;">
+                                    Leave blank for simple filenames (start.png, finish.png, arrow-up.png, etc.)
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="includeSettingsJSON" checked>
+                                    <label for="includeSettingsJSON">Include settings.json (for re-import)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Basic Tab -->
                     <div id="basic-panel" class="tab-panel" role="tabpanel" aria-labelledby="basic-tab">
                         <div class="tool-group">
@@ -1788,97 +1937,18 @@
                                 <canvas id="previewCanvas1" class="preview-canvas" width="300" height="50"></canvas>
                             </div>
                             <div class="preview-item">
-                                <span class="preview-label">Checkpoint 10</span>
-                                <canvas id="previewCanvas10" class="preview-canvas" width="300" height="50"></canvas>
+                                <span class="preview-label">START</span>
+                                <canvas id="previewCanvasStart" class="preview-canvas" width="300" height="50"></canvas>
                             </div>
                         </div>
                         <div class="preview-row">
                             <div class="preview-item">
-                                <span class="preview-label">Checkpoint 50</span>
-                                <canvas id="previewCanvas50" class="preview-canvas" width="300" height="50"></canvas>
+                                <span class="preview-label">Arrow Right →</span>
+                                <canvas id="previewCanvasArrow" class="preview-canvas" width="300" height="50"></canvas>
                             </div>
                             <div class="preview-item">
-                                <span class="preview-label">Checkpoint 100</span>
-                                <canvas id="previewCanvas100" class="preview-canvas" width="300" height="50"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Signpack Configurator -->
-                    <div class="tool-group" style="margin: 20px 0;">
-                        <div class="tool-header" onclick="toggleTool(this)">
-                            <i class="fas fa-cogs"></i>
-                            <span>Signpack Configuration</span>
-                            <i class="fas fa-chevron-down arrow"></i>
-                        </div>
-                        <div class="tool-content">
-                            <div class="form-group">
-                                <label for="signpackName">Signpack Name:</label>
-                                <input type="text" id="signpackName" placeholder="My Custom Signpack" value="Checkpoint Signpack">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="numberFormat">CP Number Format:</label>
-                                <select id="numberFormat">
-                                    <option value="001" selected>001, 002, 003... (Zero-padded)</option>
-                                    <option value="1">1, 2, 3... (Simple numbers)</option>
-                                    <option value="CP001">CP001, CP002, CP003... (With CP prefix)</option>
-                                    <option value="CP1">CP1, CP2, CP3... (CP + simple numbers)</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="numberRange">Number Range:</label>
-                                <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;">
-                                    <div>
-                                        <input type="number" id="startNumber" min="1" max="999" value="1" style="width: 100%;">
-                                        <small style="color: #bdc3c7; font-size: 0.75em;">Start</small>
-                                    </div>
-                                    <span style="color: #bdc3c7;">to</span>
-                                    <div>
-                                        <input type="number" id="endNumber" min="1" max="999" value="100" style="width: 100%;">
-                                        <small style="color: #bdc3c7; font-size: 0.75em;">End</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="customPrefix">File Prefix (optional):</label>
-                                <input type="text" id="customPrefix" placeholder="e.g., MySignpack, RacingSigns, etc. (leave blank for just numbers)" maxlength="20" value="">
-                                <small style="color: #bdc3c7; font-size: 0.75em; margin-top: 4px; display: block;">
-                                    Helps organize files on CDN services. Leave blank for simple numbering (1.png, 2.png...)
-                                </small>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="numberSuffix">Number Suffix:</label>
-                                <select id="numberSuffix">
-                                    <option value="padded" selected>001, 002, 003... (Padded)</option>
-                                    <option value="simple">1, 2, 3... (Simple)</option>
-                                </select>
-                                <small style="color: #bdc3c7; font-size: 0.75em; margin-top: 4px; display: block;">
-                                    Example: "MyPrefix001.png" vs "MyPrefix1.png"
-                                </small>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="outputFormat">Output Options:</label>
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="includePNG" checked disabled>
-                                    <label for="includePNG">Include PNG files (required)</label>
-                                </div>
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="includeJSON" checked>
-                                    <label for="includeJSON">Include settings JSON (for re-import)</label>
-                                </div>
-                            </div>
-
-                            <div class="form-group" style="background: rgba(0, 217, 255, 0.1); padding: 12px; border-radius: 6px; border-left: 3px solid var(--color-accent);">
-                                <small style="color: var(--color-accent); font-size: 0.85em;">
-                                    <i class="fas fa-info-circle"></i> <strong>Note:</strong>
-                                    Upload the generated PNG files to a web server for other players to see your custom signs.
-                                    Try <strong>dashmap.live</strong> for easy drag & drop CDN hosting.
-                                </small>
+                                <span class="preview-label">FINISH</span>
+                                <canvas id="previewCanvasFinish" class="preview-canvas" width="300" height="50"></canvas>
                             </div>
                         </div>
                     </div>

@@ -8,25 +8,25 @@ class TrackmaniaSignpackGenerator {
         console.log('TrackmaniaSignpackGenerator constructor called (v2.0)');
 
         // Check if required DOM elements exist
-        const requiredElements = ['previewCanvas1', 'previewCanvas10', 'previewCanvas50', 'previewCanvas100'];
+        const requiredElements = ['previewCanvas1', 'previewCanvasStart', 'previewCanvasArrow', 'previewCanvasFinish'];
         const missingElements = requiredElements.filter(id => !document.getElementById(id));
 
         if (missingElements.length > 0) {
-            throw new Error(`Missing required DOM elements: ${missingElements.join(', ')}`);
+            console.warn(`Missing preview canvases: ${missingElements.join(', ')}`);
         }
 
         this.canvases = {
             cp1: document.getElementById('previewCanvas1'),
-            cp10: document.getElementById('previewCanvas10'),
-            cp50: document.getElementById('previewCanvas50'),
-            cp100: document.getElementById('previewCanvas100')
+            start: document.getElementById('previewCanvasStart'),
+            arrow: document.getElementById('previewCanvasArrow'),
+            finish: document.getElementById('previewCanvasFinish')
         };
 
         this.contexts = {
             cp1: this.canvases.cp1?.getContext('2d'),
-            cp10: this.canvases.cp10?.getContext('2d'),
-            cp50: this.canvases.cp50?.getContext('2d'),
-            cp100: this.canvases.cp100?.getContext('2d')
+            start: this.canvases.start?.getContext('2d'),
+            arrow: this.canvases.arrow?.getContext('2d'),
+            finish: this.canvases.finish?.getContext('2d')
         };
 
         // Check if contexts were created successfully
