@@ -151,9 +151,28 @@
         }
 
         .main-workspace {
-            display: flex;
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
             flex: 1;
             overflow: hidden;
+            gap: 0;
+        }
+
+        .left-panel,
+        .right-panel {
+            background: var(--color-secondary);
+            backdrop-filter: blur(25px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            border-right: 1px solid var(--color-border);
+        }
+
+        .right-panel {
+            border-left: 1px solid var(--color-border);
         }
 
         .properties-panel {
@@ -164,6 +183,19 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--color-border);
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .panel-header i {
+            margin-right: 8px;
         }
 
         .panel-tabs {
@@ -231,9 +263,10 @@
         .preview-container {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 20px;
+            align-content: start;
         }
 
         .preview-item {
@@ -1293,25 +1326,14 @@
         </div>
 
         <div class="main-workspace">
-            <!-- Properties Panel -->
-            <div class="properties-panel">
-                <div class="panel-tabs" role="tablist">
-                    <div id="pack-tab" class="panel-tab active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('pack')" onkeydown="handleTabKeyDown(event, 'pack')">
-                        <i class="fas fa-box"></i> Pack
-                    </div>
-                    <div id="basic-tab" class="panel-tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('basic')" onkeydown="handleTabKeyDown(event, 'basic')">
-                        <i class="fas fa-font"></i> Text
-                    </div>
-                    <div id="style-tab" class="panel-tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('style')" onkeydown="handleTabKeyDown(event, 'style')">
-                        <i class="fas fa-palette"></i> Style
-                    </div>
-                    <div id="effects-tab" class="panel-tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('effects')" onkeydown="handleTabKeyDown(event, 'effects')">
-                        <i class="fas fa-magic"></i> Effects
-                    </div>
+            <!-- Left Panel - Pack Configuration -->
+            <div class="left-panel">
+                <div class="panel-header">
+                    <i class="fas fa-box"></i> Pack Configuration
                 </div>
 
                 <div class="panel-content">
-                    <!-- Pack Tab -->
+                    <!-- Pack Configuration Content -->
                     <div id="pack-panel" class="tab-panel" role="tabpanel" aria-labelledby="pack-tab">
                         <div class="tool-group">
                             <div class="tool-group-header">
@@ -1414,7 +1436,90 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
+            <!-- Center Panel - Preview Area -->
+            <div class="main-canvas">
+                <div class="canvas-header">
+                    <h2><i class="fas fa-eye"></i> Live Preview</h2>
+                </div>
+
+                <div class="preview-area">
+                    <div class="preview-container">
+                        <div class="preview-item">
+                            <span class="preview-label">Checkpoint (6x1)</span>
+                            <canvas id="previewCanvas1" class="preview-canvas" width="300" height="50"></canvas>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">START (6x1)</span>
+                            <canvas id="previewCanvasStart" class="preview-canvas" width="300" height="50"></canvas>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Arrow → (6x1)</span>
+                            <canvas id="previewCanvasArrow" class="preview-canvas" width="300" height="50"></canvas>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">FINISH (6x1)</span>
+                            <canvas id="previewCanvasFinish" class="preview-canvas" width="300" height="50"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="stats-panel">
+                        <div class="stats-section">
+                            <h4><i class="fas fa-info-circle"></i> Sign Info</h4>
+                            <div class="stat-item">
+                                <span class="stat-label">Format:</span>
+                                <span class="stat-value" id="statFormat">6x1 (512×80)</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Font:</span>
+                                <span class="stat-value" id="statFont">Rajdhani</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Effects:</span>
+                                <span class="stat-value" id="statEffects">Shadow</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Background:</span>
+                                <span class="stat-value" id="statBackground">Solid</span>
+                            </div>
+                        </div>
+
+                        <div class="stats-section">
+                            <h4><i class="fas fa-chart-bar"></i> Generation Stats</h4>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Signs:</span>
+                                <span class="stat-value">100</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">File Size:</span>
+                                <span class="stat-value" id="statFileSize">~2MB</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Est. Time:</span>
+                                <span class="stat-value" id="statTime">~30s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Style Tools -->
+            <div class="right-panel">
+                <div class="panel-tabs" role="tablist">
+                    <div id="basic-tab" class="panel-tab active" role="tab" tabindex="0" aria-selected="true" onclick="switchTab('basic')" onkeydown="handleTabKeyDown(event, 'basic')">
+                        <i class="fas fa-font"></i> Text
+                    </div>
+                    <div id="style-tab" class="panel-tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('style')" onkeydown="handleTabKeyDown(event, 'style')">
+                        <i class="fas fa-palette"></i> Style
+                    </div>
+                    <div id="effects-tab" class="panel-tab" role="tab" tabindex="0" aria-selected="false" onclick="switchTab('effects')" onkeydown="handleTabKeyDown(event, 'effects')">
+                        <i class="fas fa-magic"></i> Effects
+                    </div>
+                </div>
+
+                <div class="panel-content">
                     <!-- Basic Tab -->
                     <div id="basic-panel" class="tab-panel" role="tabpanel" aria-labelledby="basic-tab">
                         <div class="tool-group">
@@ -1922,72 +2027,6 @@
                                     <input type="range" id="effectIntensity" min="0" max="100" value="50">
                                     <span id="effectIntensityValue" class="range-value">50%</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Canvas Area -->
-            <div class="main-canvas">
-                <div class="canvas-header">
-                    <h2><i class="fas fa-eye"></i> Live Preview</h2>
-                </div>
-
-                <div class="preview-area">
-                    <div class="preview-container">
-                        <div class="preview-item">
-                            <span class="preview-label">Checkpoint</span>
-                            <canvas id="previewCanvas1" class="preview-canvas" width="300" height="50"></canvas>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">START</span>
-                            <canvas id="previewCanvasStart" class="preview-canvas" width="300" height="50"></canvas>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Arrow →</span>
-                            <canvas id="previewCanvasArrow" class="preview-canvas" width="300" height="50"></canvas>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">FINISH</span>
-                            <canvas id="previewCanvasFinish" class="preview-canvas" width="300" height="50"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="stats-panel">
-                        <div class="stats-section">
-                            <h4><i class="fas fa-info-circle"></i> Sign Info</h4>
-                            <div class="stat-item">
-                                <span class="stat-label">Format:</span>
-                                <span class="stat-value" id="statFormat">6x1 (512×80)</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Font:</span>
-                                <span class="stat-value" id="statFont">Rajdhani</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Effects:</span>
-                                <span class="stat-value" id="statEffects">Shadow</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Background:</span>
-                                <span class="stat-value" id="statBackground">Solid</span>
-                            </div>
-                        </div>
-
-                        <div class="stats-section">
-                            <h4><i class="fas fa-chart-bar"></i> Generation Stats</h4>
-                            <div class="stat-item">
-                                <span class="stat-label">Total Signs:</span>
-                                <span class="stat-value">100</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">File Size:</span>
-                                <span class="stat-value" id="statFileSize">~2MB</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Est. Time:</span>
-                                <span class="stat-value" id="statTime">~30s</span>
                             </div>
                         </div>
                     </div>
