@@ -2106,7 +2106,7 @@ class TrackmaniaSignpackGenerator {
 
     getSettings() {
         return {
-            textPrefix: this.elements.textPrefix.value,
+            textPrefix: this.elements.textPrefix?.value || '',
             fontSize: parseInt(this.elements.fontSize.value),
             fontFamily: this.elements.fontFamily.value,
             fontWeight: this.elements.fontWeight.value,
