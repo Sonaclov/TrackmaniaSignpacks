@@ -625,6 +625,7 @@ class TrackmaniaSignpackGenerator {
         switch(type) {
             case 'linear':
             case 'radial':
+            case 'conic':
                 const gradientOptions = document.getElementById('gradientOptions');
                 if (gradientOptions) gradientOptions.style.display = 'block';
                 break;
@@ -1366,6 +1367,21 @@ class TrackmaniaSignpackGenerator {
                 break;
             }
 
+            case 'conic': {
+                const angle = (settings.gradientAngle || 0) * Math.PI / 180;
+                const conicGradient = ctx.createConicGradient(
+                    angle,
+                    width / 2,
+                    height / 2
+                );
+                conicGradient.addColorStop(0, settings.gradientColor1);
+                conicGradient.addColorStop(0.5, settings.gradientColor2);
+                conicGradient.addColorStop(1, settings.gradientColor1);
+                ctx.fillStyle = conicGradient;
+                ctx.fillRect(0, 0, width, height);
+                break;
+            }
+
             case 'pattern':
                 this.drawPattern(ctx, width, height, settings);
                 break;
@@ -1438,6 +1454,34 @@ class TrackmaniaSignpackGenerator {
 
             case 'carbon':
                 this.drawCarbonPattern(ctx, width, height, patternSize, settings.patternColor);
+                break;
+
+            case 'spiral':
+                this.drawSpiralPattern(ctx, width, height, patternSize, settings.patternColor);
+                break;
+
+            case 'zigzag':
+                this.drawZigzagPattern(ctx, width, height, patternSize, settings.patternColor);
+                break;
+
+            case 'crosshatch':
+                this.drawCrosshatchPattern(ctx, width, height, patternSize, settings.patternColor);
+                break;
+
+            case 'triangular':
+                this.drawTriangularPattern(ctx, width, height, patternSize, settings.patternColor);
+                break;
+
+            case 'diamonds':
+                this.drawDiamondsPattern(ctx, width, height, patternSize, settings.patternColor);
+                break;
+
+            case 'circles':
+                this.drawCirclesPattern(ctx, width, height, patternSize, settings.patternColor);
+                break;
+
+            case 'scales':
+                this.drawScalesPattern(ctx, width, height, patternSize, settings.patternColor);
                 break;
         }
     }
@@ -1728,7 +1772,8 @@ class TrackmaniaSignpackGenerator {
     applyTextEffects(ctx, text, x, y, settings) {
         // Check if we have special effects that provide their own rendering
         const hasSpecialEffect = settings.hologram || settings.neon || settings.metallic ||
-                                settings.chrome || settings.rainbow || settings.glitch;
+                                settings.chrome || settings.rainbow || settings.glitch ||
+                                settings.scanlines || settings.pixel || settings.retro || settings.depth3d;
 
         if (hasSpecialEffect) {
             // Apply special effects with potential stacking
@@ -1767,6 +1812,14 @@ class TrackmaniaSignpackGenerator {
             this.drawRainbowText(ctx, text, x, y, settings);
         } else if (settings.glitch) {
             this.drawGlitchText(ctx, text, x, y, settings);
+        } else if (settings.scanlines) {
+            this.drawScanlinesText(ctx, text, x, y, settings);
+        } else if (settings.pixel) {
+            this.drawPixelText(ctx, text, x, y, settings);
+        } else if (settings.retro) {
+            this.drawRetroText(ctx, text, x, y, settings);
+        } else if (settings.depth3d) {
+            this.draw3DDepthText(ctx, text, x, y, settings);
         }
 
         // Add outline on top if enabled
@@ -1960,6 +2013,122 @@ class TrackmaniaSignpackGenerator {
         ctx.restore();
     }
 
+    drawScanlinesText(ctx, text, x, y, settings) {
+        const width = ctx.canvas.width;
+        const height = ctx.canvas.height;
+
+        // Draw the main text first
+        ctx.fillStyle = settings.textColor;
+        ctx.fillText(text, x, y);
+
+        // Create scanlines overlay
+        ctx.save();
+        const lineSpacing = 4;
+        const intensity = (settings.effectIntensity || 50) / 100;
+
+        ctx.strokeStyle = `rgba(0, 0, 0, ${intensity * 0.3})`;
+        ctx.lineWidth = 2;
+
+        for (let scanY = 0; scanY < height; scanY += lineSpacing) {
+            ctx.beginPath();
+            ctx.moveTo(0, scanY);
+            ctx.lineTo(width, scanY);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    drawPixelText(ctx, text, x, y, settings) {
+        const intensity = Math.max(2, Math.floor((settings.effectIntensity || 50) / 10));
+
+        // Draw text to temp canvas
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = ctx.canvas.width;
+        tempCanvas.height = ctx.canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Copy font settings
+        tempCtx.font = ctx.font;
+        tempCtx.textAlign = ctx.textAlign;
+        tempCtx.textBaseline = ctx.textBaseline;
+        tempCtx.fillStyle = settings.textColor;
+        tempCtx.fillText(text, x, y);
+
+        // Pixelate effect by scaling down and up
+        const scaledWidth = Math.floor(tempCanvas.width / intensity);
+        const scaledHeight = Math.floor(tempCanvas.height / intensity);
+
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(tempCanvas, 0, 0, scaledWidth, scaledHeight);
+        ctx.drawImage(ctx.canvas, 0, 0, scaledWidth, scaledHeight, 0, 0, tempCanvas.width, tempCanvas.height);
+        ctx.restore();
+
+        // Draw pixelated version
+        tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.imageSmoothingEnabled = false;
+        tempCtx.drawImage(ctx.canvas, 0, 0);
+
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.drawImage(tempCanvas, 0, 0);
+    }
+
+    drawRetroText(ctx, text, x, y, settings) {
+        const intensity = (settings.effectIntensity || 50) / 100;
+
+        // Draw main text with green tint for CRT effect
+        ctx.save();
+        ctx.fillStyle = settings.textColor;
+        ctx.fillText(text, x, y);
+
+        // Add phosphor glow
+        ctx.shadowColor = '#00ff00';
+        ctx.shadowBlur = 10 * intensity;
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = '#00ff00';
+        ctx.fillText(text, x, y);
+
+        // Add slight chromatic aberration
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = '#ff0000';
+        ctx.fillText(text, x - 2 * intensity, y);
+        ctx.fillStyle = '#0000ff';
+        ctx.fillText(text, x + 2 * intensity, y);
+
+        ctx.restore();
+
+        // Add scanlines
+        this.drawScanlinesText(ctx, '', x, y, settings);
+    }
+
+    draw3DDepthText(ctx, text, x, y, settings) {
+        const intensity = (settings.effectIntensity || 50) / 10;
+        const layers = 8;
+
+        ctx.save();
+
+        // Draw depth layers from back to front
+        for (let i = layers; i > 0; i--) {
+            const offset = i * (intensity / layers);
+            const alpha = 0.3 + (i / layers) * 0.7;
+
+            // Create darker shades for depth
+            const rgb = this.hexToRgb(settings.textColor);
+            const darkenFactor = i / layers;
+            const layerColor = `rgba(${Math.floor(rgb.r * darkenFactor)}, ${Math.floor(rgb.g * darkenFactor)}, ${Math.floor(rgb.b * darkenFactor)}, ${alpha})`;
+
+            ctx.fillStyle = layerColor;
+            ctx.fillText(text, x - offset, y + offset);
+        }
+
+        // Draw front layer
+        ctx.fillStyle = settings.textColor;
+        ctx.fillText(text, x, y);
+
+        ctx.restore();
+    }
+
     getFontFallbacks(fontFamily) {
         const fallbacks = {
             'Orbitron': '"Orbitron", "Arial Black", "Arial", sans-serif',
@@ -2065,6 +2234,139 @@ class TrackmaniaSignpackGenerator {
         }
     }
 
+    drawSpiralPattern(ctx, width, height, size, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.fillStyle = color;
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const maxRadius = Math.sqrt(centerX * centerX + centerY * centerY);
+        const spacing = size / 2;
+
+        for (let radius = 0; radius < maxRadius; radius += spacing) {
+            ctx.beginPath();
+            for (let angle = 0; angle < Math.PI * 4; angle += 0.1) {
+                const r = radius + (angle / (Math.PI * 4)) * spacing;
+                const x = centerX + r * Math.cos(angle);
+                const y = centerY + r * Math.sin(angle);
+                if (angle === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+    }
+
+    drawZigzagPattern(ctx, width, height, size, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        const amplitude = size / 2;
+
+        for (let y = 0; y < height; y += size) {
+            ctx.beginPath();
+            for (let x = 0; x <= width; x += size / 2) {
+                const zigzagY = y + (x / (size / 2) % 2 === 0 ? -amplitude : amplitude);
+                if (x === 0) ctx.moveTo(x, zigzagY);
+                else ctx.lineTo(x, zigzagY);
+            }
+            ctx.stroke();
+        }
+    }
+
+    drawCrosshatchPattern(ctx, width, height, size, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+
+        // Diagonal lines going top-left to bottom-right
+        for (let i = -height; i < width; i += size) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i + height, height);
+            ctx.stroke();
+        }
+
+        // Diagonal lines going top-right to bottom-left
+        for (let i = 0; i < width + height; i += size) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i - height, height);
+            ctx.stroke();
+        }
+    }
+
+    drawTriangularPattern(ctx, width, height, size, color) {
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 1;
+
+        const triangleHeight = size * Math.sqrt(3) / 2;
+
+        for (let y = 0; y < height + triangleHeight; y += triangleHeight) {
+            for (let x = 0; x < width + size; x += size) {
+                const offset = (Math.floor(y / triangleHeight) % 2) * (size / 2);
+
+                // Draw upward triangle
+                ctx.beginPath();
+                ctx.moveTo(x + offset, y);
+                ctx.lineTo(x + size / 2 + offset, y + triangleHeight);
+                ctx.lineTo(x - size / 2 + offset, y + triangleHeight);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+    }
+
+    drawDiamondsPattern(ctx, width, height, size, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+
+        for (let y = 0; y < height + size; y += size) {
+            for (let x = 0; x < width + size; x += size) {
+                ctx.beginPath();
+                ctx.moveTo(x, y - size / 2);
+                ctx.lineTo(x + size / 2, y);
+                ctx.lineTo(x, y + size / 2);
+                ctx.lineTo(x - size / 2, y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+    }
+
+    drawCirclesPattern(ctx, width, height, size, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+
+        for (let y = 0; y < height + size; y += size) {
+            for (let x = 0; x < width + size; x += size) {
+                ctx.beginPath();
+                ctx.arc(x, y, size / 3, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+    }
+
+    drawScalesPattern(ctx, width, height, size, color) {
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 1;
+
+        const radius = size / 2;
+        const spacing = size * 0.8;
+
+        for (let row = 0; row < height / spacing + 2; row++) {
+            for (let col = 0; col < width / size + 2; col++) {
+                const x = col * size + (row % 2) * (size / 2);
+                const y = row * spacing;
+
+                // Draw scale (arc)
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI);
+                ctx.stroke();
+            }
+        }
+    }
+
 
     updateStats() {
         const settings = this.getSettings();
@@ -2085,6 +2387,10 @@ class TrackmaniaSignpackGenerator {
         if (settings.chrome) effects.push('Chrome');
         if (settings.rainbow) effects.push('Rainbow');
         if (settings.glitch) effects.push('Glitch');
+        if (settings.scanlines) effects.push('Scanlines');
+        if (settings.pixel) effects.push('Pixelated');
+        if (settings.retro) effects.push('Retro CRT');
+        if (settings.depth3d) effects.push('3D Depth');
 
         this.elements.statEffects.textContent = effects.length > 0 ? effects.join(', ') : 'None';
         this.elements.statBackground.textContent = settings.backgroundType.charAt(0).toUpperCase() + settings.backgroundType.slice(1);
@@ -2148,6 +2454,10 @@ class TrackmaniaSignpackGenerator {
             chrome: this.elements.chrome.checked,
             rainbow: this.elements.rainbow.checked,
             glitch: this.elements.glitch.checked,
+            scanlines: this.elements.scanlines?.checked || false,
+            pixel: this.elements.pixel?.checked || false,
+            retro: this.elements.retro?.checked || false,
+            depth3d: this.elements.depth3d?.checked || false,
             effectIntensity: parseInt(this.elements.effectIntensity.value),
 
             borderWidth: parseInt(this.elements.borderWidth.value),
