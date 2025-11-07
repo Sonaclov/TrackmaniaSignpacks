@@ -8,7 +8,7 @@ class TrackmaniaSignpackGenerator {
         console.log('TrackmaniaSignpackGenerator constructor called (v2.0)');
 
         // Check if required DOM elements exist
-        const requiredElements = ['previewCanvas1', 'previewCanvasStart', 'previewCanvasArrow', 'previewCanvasFinish'];
+        const requiredElements = ['previewCanvas1', 'previewCanvasStart', 'previewCanvasArrow', 'previewCanvasFinish', 'previewCanvas1x1', 'previewCanvas4x1'];
         const missingElements = requiredElements.filter(id => !document.getElementById(id));
 
         if (missingElements.length > 0) {
@@ -19,14 +19,18 @@ class TrackmaniaSignpackGenerator {
             cp1: document.getElementById('previewCanvas1'),
             start: document.getElementById('previewCanvasStart'),
             arrow: document.getElementById('previewCanvasArrow'),
-            finish: document.getElementById('previewCanvasFinish')
+            finish: document.getElementById('previewCanvasFinish'),
+            cp1x1: document.getElementById('previewCanvas1x1'),
+            cp4x1: document.getElementById('previewCanvas4x1')
         };
 
         this.contexts = {
             cp1: this.canvases.cp1?.getContext('2d'),
             start: this.canvases.start?.getContext('2d'),
             arrow: this.canvases.arrow?.getContext('2d'),
-            finish: this.canvases.finish?.getContext('2d')
+            finish: this.canvases.finish?.getContext('2d'),
+            cp1x1: this.canvases.cp1x1?.getContext('2d'),
+            cp4x1: this.canvases.cp4x1?.getContext('2d')
         };
 
         // Check if contexts were created successfully
@@ -1188,34 +1192,60 @@ class TrackmaniaSignpackGenerator {
         const dimensions = this.getSignDimensions();
         const aspectRatio = dimensions.width / dimensions.height;
 
-        // Set consistent preview canvas size
+        // Set consistent preview canvas size for current format
         const maxWidth = 280;
         const canvasHeight = Math.round(maxWidth / aspectRatio);
 
-        // Update all preview canvases
-        Object.keys(this.canvases).forEach(key => {
+        // Update main preview canvases (current format)
+        ['cp1', 'start', 'arrow', 'finish'].forEach(key => {
             if (this.canvases[key]) {
                 this.canvases[key].width = maxWidth;
                 this.canvases[key].height = canvasHeight;
             }
         });
 
+        // Set dimensions for format-specific previews
+        if (this.canvases.cp1x1) {
+            const size1x1 = 150;
+            this.canvases.cp1x1.width = size1x1;
+            this.canvases.cp1x1.height = size1x1;
+        }
+
+        if (this.canvases.cp4x1) {
+            const width4x1 = 280;
+            const height4x1 = Math.round(width4x1 / 4);
+            this.canvases.cp4x1.width = width4x1;
+            this.canvases.cp4x1.height = height4x1;
+        }
+
         // Draw different sign types
         const checkpointPrefix = this.elements.checkpointPrefix?.value || 'Checkpoint';
         const startText = this.elements.startText?.value || 'START';
         const finishText = this.elements.finishText?.value || 'FINISH';
 
-        // Checkpoint example
+        // Checkpoint example (current format)
         this.drawSign(this.contexts.cp1, maxWidth, canvasHeight, `${checkpointPrefix} 1`);
 
         // START sign
         this.drawSign(this.contexts.start, maxWidth, canvasHeight, startText);
 
+        // FINISH sign
+        this.drawSign(this.contexts.finish, maxWidth, canvasHeight, finishText);
+
         // Arrow example (right arrow)
         this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '→');
 
-        // FINISH sign
-        this.drawSign(this.contexts.finish, maxWidth, canvasHeight, finishText);
+        // Checkpoint in 1x1 format
+        if (this.contexts.cp1x1) {
+            this.drawSign(this.contexts.cp1x1, 150, 150, `${checkpointPrefix} 1`);
+        }
+
+        // Checkpoint in 4x1 format
+        if (this.contexts.cp4x1) {
+            const width4x1 = 280;
+            const height4x1 = Math.round(width4x1 / 4);
+            this.drawSign(this.contexts.cp4x1, width4x1, height4x1, `${checkpointPrefix} 1`);
+        }
     }
 
     drawSign(ctx, width, height, number) {
