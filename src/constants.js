@@ -104,7 +104,8 @@ export const BLEND_MODES = [
 ];
 
 export const PATTERN_TYPES = [
-    'stripes', 'checkerboard', 'dots', 'waves', 'grid', 'hexagon', 'carbon'
+    'stripes', 'checkerboard', 'dots', 'waves', 'grid', 'hexagon', 'carbon',
+    'spiral', 'zigzag', 'crosshatch', 'triangular', 'diamonds', 'circles', 'scales'
 ];
 
 export const BORDER_STYLES = [
