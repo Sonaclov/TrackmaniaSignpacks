@@ -5,9 +5,9 @@
 [![GitHub Stars](https://img.shields.io/github/stars/Sonaclov/TrackmaniaSignpacks?style=social)](https://github.com/Sonaclov/TrackmaniaSignpacks)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## ✨ Features
+##  Features
 
-### 🎨 Design Tools
+### Design Tools
 - **60+ Fonts** - From classic to futuristic styles
 - **6 Special Effects** - Hologram, Neon, Metallic, Chrome, Rainbow, Glitch
 - **Custom Backgrounds** - Solid, gradients, patterns, noise, or upload your own image
@@ -15,20 +15,20 @@
 - **Border Styles** - Multiple styles with custom colors and corner radius
 - **Real-time Preview** - See changes instantly
 
-### 🚀 Community Features
+### Community Features
 - **Quick Templates** - 10 pre-built styles for common use cases
 - **Share Links** - One-click shareable URLs for your designs
 - **Discord Integration** - Post designs directly to Discord servers
 - **Preset System** - Save and load your favorite designs
 - **Theme Library** - 8 built-in themes to get started quickly
 
-### ⚙️ Power User Tools
+### Power User Tools
 - **Batch Generation** - Create 1-999 checkpoints at once
 - **Smart Randomizer** - Generate random designs with lockable settings
 - **Export Options** - PNG files + optional settings JSON
 - **URL Import** - Load shared designs from community
 
-## 🎯 Quick Start
+## Quick Start
 
 ### Online Version (Recommended)
 Just visit: [https://sonaclov.github.io/TrackmaniaSignpacks/](https://sonaclov.github.io/TrackmaniaSignpacks/)
@@ -78,17 +78,6 @@ python -m http.server 8000
 3. Post on Discord, Reddit, or Twitter
 4. Others can click your link to load your exact design!
 
-### Discord Integration
-
-**Post designs directly to Discord:**
-
-1. Click "Discord" button in toolbar
-2. Set up your webhook (one-time setup):
-   - Discord Server Settings → Integrations → Webhooks
-   - Create webhook and copy URL
-   - Paste in the tool
-3. Now you can share designs with one click!
-
 ## 🛠️ Technical Details
 
 ### Architecture
@@ -121,14 +110,13 @@ TrackmaniaSignpacks/
 - ✅ Chrome/Edge (Recommended)
 - ✅ Firefox
 - ✅ Safari
-- ❌ IE11 (not supported)
 
 **Minimum Requirements:**
 - ES6 module support
 - Canvas API support
 - LocalStorage for presets
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Here's how you can help:
 
@@ -138,111 +126,19 @@ Contributions are welcome! Here's how you can help:
 - Steps to reproduce
 - Screenshots if relevant
 
-### Suggest Features
-[Start a discussion](https://github.com/Sonaclov/TrackmaniaSignpacks/discussions) about:
-- New effects or features
-- Template ideas
-- UX improvements
-
-### Add Templates
-Create a template and share it! Format:
-
-```javascript
-"Your Template Name": {
-    description: "What makes it special",
-    icon: "🎨",
-    category: "racing", // or neon, clan, professional, etc.
-    difficulty: "beginner",
-    settings: {
-        // Your settings here
-    },
-    customizable: ['textPrefix', 'textColor'],
-    instructions: "How to customize it"
-}
-```
-
-Submit via [Pull Request](https://github.com/Sonaclov/TrackmaniaSignpacks/pulls).
-
-### Code Contributions
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-**Code Style:**
-- Use ES6+ features
-- Add JSDoc comments for functions
-- Keep functions small and focused
-- Follow existing patterns
-
-## 📝 Development Roadmap
-
-### Version 2.0 (Current) ✅
-- [x] Modular architecture
-- [x] Input validation
-- [x] Community templates
-- [x] Share link system
-- [x] Discord integration
-- [x] Performance improvements (debouncing)
-- [x] Security improvements (SRI hashes)
-
-### Version 2.1 (Planned) 🎯
-- [ ] Community gallery (GitHub-backed)
-- [ ] Installation wizard
-- [ ] Mobile optimization
-- [ ] URL list generator
-- [ ] Team pack mode
-- [ ] Color variation generator
-
-### Version 3.0 (Future) 🚀
-- [ ] Web Workers for generation
-- [ ] TypeScript migration
-- [ ] Unit test suite
-- [ ] CI/CD pipeline
-- [ ] PWA support
-- [ ] Offline mode
-
-## 🎮 Community
+## Community
 
 - **Discord**: [Join our community](#) *(Add your Discord link)*
 - **Reddit**: [r/TrackMania](https://reddit.com/r/TrackMania)
 - **GitHub Discussions**: [Share & discuss](https://github.com/Sonaclov/TrackmaniaSignpacks/discussions)
 
-### Showcase
-
-Share your creations! Tag with `#TrackmaniaSignpacks` on social media.
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- **Trackmania Community** - For inspiration and feedback
-- **Ubisoft Nadeo** - For creating Trackmania
-- **Google Fonts** - For the amazing font library
-- **Contributors** - Everyone who has helped improve this tool
-
-## 📧 Support
-
-Need help? Found a bug?
-
-1. Check the [FAQ](#faq) below
-2. Search [existing issues](https://github.com/Sonaclov/TrackmaniaSignpacks/issues)
-3. Create a [new issue](https://github.com/Sonaclov/TrackmaniaSignpacks/issues/new)
-
 ---
 
-## ❓ FAQ
-
-### How do I use the generated signs in Trackmania?
-
-1. Upload your PNG files to a web host (Dashmap.live recommended)
-2. In Trackmania Map Editor, place a checkpoint sign block
-3. Right-click → Properties → Enter your image URL
-4. Repeat for each checkpoint number
+## FAQ
 
 ### Can other players see my custom signs?
 
@@ -259,47 +155,10 @@ Others can click it to load your exact design settings.
 
 ### Why aren't fonts loading?
 
-- Check your internet connection
 - Try refreshing the page
 - Some fonts may be blocked by ad blockers
 - Disable browser extensions and try again
 
-### Can I use this offline?
-
-The app needs internet for:
-- Loading Google Fonts
-- Loading JSZip library
-- Sharing features
-
-Basic functionality works offline if fonts are cached.
-
-### How do I add my own template?
-
-1. Design your checkpoint
-2. Click "Export Settings"
-3. Format as shown in [Contributing](#contributing) section
-4. Submit via Pull Request or share in Discussions
-
-### The generator is slow for 100+ signs?
-
-This is normal. Tips:
-- Use smaller ranges (25-50 at a time)
-- Close other browser tabs
-- Wait patiently - it's generating high-quality PNGs!
-- Future update will use Web Workers for better performance
-
-### Can I use this commercially?
-
-Yes! MIT License allows commercial use. Attribution appreciated but not required.
-
 ### How do I report a security issue?
 
 Please email security concerns privately rather than opening a public issue.
-
----
-
-**Made with ❤️ by the Trackmania Community**
-
-⭐ Star this repo if you find it useful!
-
-🔗 Share your creations with `#TrackmaniaSignpacks`
