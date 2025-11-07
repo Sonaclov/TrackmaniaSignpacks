@@ -1163,6 +1163,9 @@
                 <button id="generateBtn" class="toolbar-btn" onclick="generateSignpack()" style="background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%); font-weight: bold;" disabled>
                     <i class="fas fa-spinner fa-spin"></i> Loading...
                 </button>
+                <button id="shareBtn" class="toolbar-btn" onclick="openShareModal()" title="Share Your Design" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
                 <button class="toolbar-btn" onclick="checkGenerator()" title="Debug: Check Generator Status" style="font-size: 0.8em;">
                     <i class="fas fa-bug"></i>
                 </button>
@@ -1340,7 +1343,7 @@
 
                 <div class="panel-content">
                     <!-- Pack Configuration Content -->
-                    <div id="pack-panel" class="tab-panel" role="tabpanel" aria-labelledby="pack-tab">
+                    <div id="pack-panel" class="generator-panel" role="tabpanel" aria-labelledby="pack-tab">
                         <div class="tool-group">
                             <div class="tool-group-header">
                                 <i class="fas fa-box"></i> Sign Types
@@ -1402,15 +1405,26 @@
                                         <input type="checkbox" id="includeArrows">
                                         <label for="includeArrows" style="margin-bottom: 0; font-weight: 600;">Directional Arrows</label>
                                     </div>
-                                    <div id="arrowConfig" style="display: none; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.85em;">
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowUp" checked><label for="arrowUp" style="margin: 0;">↑ Up</label></div>
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowDown" checked><label for="arrowDown" style="margin: 0;">↓ Down</label></div>
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowLeft" checked><label for="arrowLeft" style="margin: 0;">← Left</label></div>
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowRight" checked><label for="arrowRight" style="margin: 0;">→ Right</label></div>
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowUpLeft"><label for="arrowUpLeft" style="margin: 0;">↖ Up-L</label></div>
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowUpRight"><label for="arrowUpRight" style="margin: 0;">↗ Up-R</label></div>
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowDownLeft"><label for="arrowDownLeft" style="margin: 0;">↙ Down-L</label></div>
-                                        <div class="checkbox-group"><input type="checkbox" id="arrowDownRight"><label for="arrowDownRight" style="margin: 0;">↘ Down-R</label></div>
+                                    <div id="arrowConfig" style="display: none; gap: 8px; font-size: 0.85em;">
+                                        <!-- Arrow Mode Toggle -->
+                                        <div style="margin-bottom: 8px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+                                            <label style="display: block; margin-bottom: 4px; font-size: 0.9em; color: var(--color-accent);">Arrow Style:</label>
+                                            <select id="arrowMode" style="width: 100%; padding: 4px; background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;">
+                                                <option value="rotated">Rotated Arrow (↑ rotated 8 ways)</option>
+                                                <option value="character">Character Arrows (font dependent)</option>
+                                            </select>
+                                        </div>
+                                        <!-- Arrow Direction Checkboxes -->
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowUp" checked><label for="arrowUp" style="margin: 0;">↑ Up</label></div>
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowDown" checked><label for="arrowDown" style="margin: 0;">↓ Down</label></div>
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowLeft" checked><label for="arrowLeft" style="margin: 0;">← Left</label></div>
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowRight" checked><label for="arrowRight" style="margin: 0;">→ Right</label></div>
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowUpLeft"><label for="arrowUpLeft" style="margin: 0;">↖ Up-L</label></div>
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowUpRight"><label for="arrowUpRight" style="margin: 0;">↗ Up-R</label></div>
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowDownLeft"><label for="arrowDownLeft" style="margin: 0;">↙ Down-L</label></div>
+                                            <div class="checkbox-group"><input type="checkbox" id="arrowDownRight"><label for="arrowDownRight" style="margin: 0;">↘ Down-R</label></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1468,14 +1482,6 @@
                         <div class="preview-item">
                             <span class="preview-label">Arrow → Sign</span>
                             <canvas id="previewCanvasArrow" class="preview-canvas" width="300" height="50"></canvas>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Checkpoint (1x1 Format)</span>
-                            <canvas id="previewCanvas1x1" class="preview-canvas" width="150" height="150"></canvas>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Checkpoint (4x1 Format)</span>
-                            <canvas id="previewCanvas4x1" class="preview-canvas" width="300" height="75"></canvas>
                         </div>
                     </div>
 
@@ -2095,5 +2101,39 @@
 
         <!-- Main Application Script -->
         <script src="script.js"></script>
+
+        <!-- Sharing Module -->
+        <script type="module">
+            import { shareManager } from './src/sharing.js';
+
+            // Make shareManager available globally
+            window.shareManager = shareManager;
+
+            // Wrapper function to open share modal
+            window.openShareModal = function() {
+                try {
+                    // Get current settings from the generator
+                    const settings = window.generator ? window.generator.getSettings() : {};
+
+                    // Get the main preview canvas for thumbnail
+                    const previewCanvas = document.getElementById('previewCanvas1');
+
+                    // Show the share modal
+                    shareManager.showShareModal(settings, previewCanvas);
+                } catch (error) {
+                    console.error('Error opening share modal:', error);
+                    alert('Failed to open share modal. Please try again.');
+                }
+            };
+
+            // Load settings from URL on page load
+            window.addEventListener('DOMContentLoaded', () => {
+                const settings = shareManager.loadFromUrl();
+                if (settings && window.generator) {
+                    console.log('Loading settings from URL...', settings);
+                    window.generator.applySettings(settings);
+                }
+            });
+        </script>
     </body>
     </html>
