@@ -8,7 +8,7 @@ class TrackmaniaSignpackGenerator {
         console.log('TrackmaniaSignpackGenerator constructor called (v2.0)');
 
         // Check if required DOM elements exist
-        const requiredElements = ['previewCanvas1', 'previewCanvasStart', 'previewCanvasArrow', 'previewCanvasFinish', 'previewCanvas1x1', 'previewCanvas4x1'];
+        const requiredElements = ['previewCanvas1', 'previewCanvasStart', 'previewCanvasArrow', 'previewCanvasFinish'];
         const missingElements = requiredElements.filter(id => !document.getElementById(id));
 
         if (missingElements.length > 0) {
@@ -19,18 +19,14 @@ class TrackmaniaSignpackGenerator {
             cp1: document.getElementById('previewCanvas1'),
             start: document.getElementById('previewCanvasStart'),
             arrow: document.getElementById('previewCanvasArrow'),
-            finish: document.getElementById('previewCanvasFinish'),
-            cp1x1: document.getElementById('previewCanvas1x1'),
-            cp4x1: document.getElementById('previewCanvas4x1')
+            finish: document.getElementById('previewCanvasFinish')
         };
 
         this.contexts = {
             cp1: this.canvases.cp1?.getContext('2d'),
             start: this.canvases.start?.getContext('2d'),
             arrow: this.canvases.arrow?.getContext('2d'),
-            finish: this.canvases.finish?.getContext('2d'),
-            cp1x1: this.canvases.cp1x1?.getContext('2d'),
-            cp4x1: this.canvases.cp4x1?.getContext('2d')
+            finish: this.canvases.finish?.getContext('2d')
         };
 
         // Check if contexts were created successfully
@@ -256,6 +252,7 @@ class TrackmaniaSignpackGenerator {
             includeFinish: document.getElementById('includeFinish'),
             finishText: document.getElementById('finishText'),
             includeArrows: document.getElementById('includeArrows'),
+            arrowMode: document.getElementById('arrowMode'),
             arrowUp: document.getElementById('arrowUp'),
             arrowDown: document.getElementById('arrowDown'),
             arrowLeft: document.getElementById('arrowLeft'),
@@ -1234,21 +1231,9 @@ class TrackmaniaSignpackGenerator {
 
         // Arrow example (right arrow)
         this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '→');
-
-        // Checkpoint in 1x1 format
-        if (this.contexts.cp1x1) {
-            this.drawSign(this.contexts.cp1x1, 150, 150, `${checkpointPrefix} 1`);
-        }
-
-        // Checkpoint in 4x1 format
-        if (this.contexts.cp4x1) {
-            const width4x1 = 280;
-            const height4x1 = Math.round(width4x1 / 4);
-            this.drawSign(this.contexts.cp4x1, width4x1, height4x1, `${checkpointPrefix} 1`);
-        }
     }
 
-    drawSign(ctx, width, height, number) {
+    drawSign(ctx, width, height, number, rotation = null) {
         const settings = this.getSettings();
 
         // Clear canvas
@@ -1268,8 +1253,22 @@ class TrackmaniaSignpackGenerator {
         // Draw border
         this.drawBorder(ctx, width, height, settings);
 
+        // Apply rotation if specified (for rotated arrows)
+        if (rotation !== null && rotation !== undefined) {
+            ctx.save();
+            // Move to center, rotate, then move back
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate((rotation * Math.PI) / 180);
+            ctx.translate(-width / 2, -height / 2);
+        }
+
         // Draw text
         this.drawText(ctx, width, height, number, settings);
+
+        // Restore rotation if applied
+        if (rotation !== null && rotation !== undefined) {
+            ctx.restore();
+        }
 
         // Restore context
         ctx.restore();
@@ -2105,7 +2104,8 @@ class TrackmaniaSignpackGenerator {
             borderStyle: this.elements.borderStyle.value,
             cornerRadius: parseInt(this.elements.cornerRadius.value),
 
-            signFormat: this.elements.signFormat.value
+            signFormat: this.elements.signFormat.value,
+            arrowMode: this.elements.arrowMode?.value || 'rotated'
         };
     }
 
@@ -2559,26 +2559,54 @@ class TrackmaniaSignpackGenerator {
 
         // Arrows
         if (this.elements.includeArrows?.checked) {
-            const arrows = [
-                { check: 'arrowUp', text: '↑', name: 'up' },
-                { check: 'arrowDown', text: '↓', name: 'down' },
-                { check: 'arrowLeft', text: '←', name: 'left' },
-                { check: 'arrowRight', text: '→', name: 'right' },
-                { check: 'arrowUpLeft', text: '↖', name: 'up-left' },
-                { check: 'arrowUpRight', text: '↗', name: 'up-right' },
-                { check: 'arrowDownLeft', text: '↙', name: 'down-left' },
-                { check: 'arrowDownRight', text: '↘', name: 'down-right' }
-            ];
+            const arrowMode = this.elements.arrowMode?.value || 'rotated';
 
-            arrows.forEach(arrow => {
-                if (this.elements[arrow.check]?.checked) {
-                    signs.push({
-                        type: 'arrow',
-                        text: arrow.text,
-                        filename: `arrow-${arrow.name}.png`
-                    });
-                }
-            });
+            if (arrowMode === 'rotated') {
+                // Rotated arrow mode - use up arrow rotated to different angles
+                const arrows = [
+                    { check: 'arrowUp', rotation: 0, name: 'up' },
+                    { check: 'arrowRight', rotation: 90, name: 'right' },
+                    { check: 'arrowDown', rotation: 180, name: 'down' },
+                    { check: 'arrowLeft', rotation: 270, name: 'left' },
+                    { check: 'arrowUpRight', rotation: 45, name: 'up-right' },
+                    { check: 'arrowDownRight', rotation: 135, name: 'down-right' },
+                    { check: 'arrowDownLeft', rotation: 225, name: 'down-left' },
+                    { check: 'arrowUpLeft', rotation: 315, name: 'up-left' }
+                ];
+
+                arrows.forEach(arrow => {
+                    if (this.elements[arrow.check]?.checked) {
+                        signs.push({
+                            type: 'arrow',
+                            text: '↑',
+                            rotation: arrow.rotation,
+                            filename: `arrow-${arrow.name}.png`
+                        });
+                    }
+                });
+            } else {
+                // Character arrow mode - use font-dependent arrow characters
+                const arrows = [
+                    { check: 'arrowUp', text: '↑', name: 'up' },
+                    { check: 'arrowDown', text: '↓', name: 'down' },
+                    { check: 'arrowLeft', text: '←', name: 'left' },
+                    { check: 'arrowRight', text: '→', name: 'right' },
+                    { check: 'arrowUpLeft', text: '↖', name: 'up-left' },
+                    { check: 'arrowUpRight', text: '↗', name: 'up-right' },
+                    { check: 'arrowDownLeft', text: '↙', name: 'down-left' },
+                    { check: 'arrowDownRight', text: '↘', name: 'down-right' }
+                ];
+
+                arrows.forEach(arrow => {
+                    if (this.elements[arrow.check]?.checked) {
+                        signs.push({
+                            type: 'arrow',
+                            text: arrow.text,
+                            filename: `arrow-${arrow.name}.png`
+                        });
+                    }
+                });
+            }
         }
 
         return signs;
@@ -2646,7 +2674,7 @@ class TrackmaniaSignpackGenerator {
 
                 // Clear and draw the sign
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                this.drawSign(ctx, dimensions.width, dimensions.height, sign.text);
+                this.drawSign(ctx, dimensions.width, dimensions.height, sign.text, sign.rotation);
 
                 try {
                     const blob = await this.canvasToBlob(canvas);
