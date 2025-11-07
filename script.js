@@ -253,6 +253,7 @@ class TrackmaniaSignpackGenerator {
             finishText: document.getElementById('finishText'),
             includeArrows: document.getElementById('includeArrows'),
             arrowMode: document.getElementById('arrowMode'),
+            arrowDirections: document.getElementById('arrowDirections'),
             arrowUp: document.getElementById('arrowUp'),
             arrowDown: document.getElementById('arrowDown'),
             arrowLeft: document.getElementById('arrowLeft'),
@@ -469,8 +470,51 @@ class TrackmaniaSignpackGenerator {
             }
         });
 
+        // Arrow mode change - update preview
+        if (this.elements.arrowMode) {
+            this.elements.arrowMode.addEventListener('change', () => {
+                this.updatePreview();
+            });
+        }
+
+        // Arrow directions selector - update checkboxes based on 4 or 8 directions
+        if (this.elements.arrowDirections) {
+            this.elements.arrowDirections.addEventListener('change', () => {
+                this.updateArrowDirections();
+                this.updatePackSummary();
+            });
+            // Initialize arrow directions on load
+            this.updateArrowDirections();
+        }
+
         // Initial pack summary
         this.updatePackSummary();
+    }
+
+    updateArrowDirections() {
+        const directions = this.elements.arrowDirections?.value || '4';
+
+        if (directions === '4') {
+            // 4 directions: cardinal only
+            this.elements.arrowUp.checked = true;
+            this.elements.arrowDown.checked = true;
+            this.elements.arrowLeft.checked = true;
+            this.elements.arrowRight.checked = true;
+            this.elements.arrowUpLeft.checked = false;
+            this.elements.arrowUpRight.checked = false;
+            this.elements.arrowDownLeft.checked = false;
+            this.elements.arrowDownRight.checked = false;
+        } else {
+            // 8 directions: all
+            this.elements.arrowUp.checked = true;
+            this.elements.arrowDown.checked = true;
+            this.elements.arrowLeft.checked = true;
+            this.elements.arrowRight.checked = true;
+            this.elements.arrowUpLeft.checked = true;
+            this.elements.arrowUpRight.checked = true;
+            this.elements.arrowDownLeft.checked = true;
+            this.elements.arrowDownRight.checked = true;
+        }
     }
 
     updatePackSummary() {
@@ -1229,8 +1273,15 @@ class TrackmaniaSignpackGenerator {
         // FINISH sign
         this.drawSign(this.contexts.finish, maxWidth, canvasHeight, finishText);
 
-        // Arrow example (right arrow)
-        this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '→');
+        // Arrow example - use arrow mode to determine which to show
+        const arrowMode = this.elements.arrowMode?.value || 'rotated';
+        if (arrowMode === 'rotated') {
+            // Show rotated up arrow (90 degrees = right)
+            this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '↑', 90);
+        } else {
+            // Show character arrow (right arrow)
+            this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '→');
+        }
     }
 
     drawSign(ctx, width, height, number, rotation = null) {
@@ -2105,7 +2156,8 @@ class TrackmaniaSignpackGenerator {
             cornerRadius: parseInt(this.elements.cornerRadius.value),
 
             signFormat: this.elements.signFormat.value,
-            arrowMode: this.elements.arrowMode?.value || 'rotated'
+            arrowMode: this.elements.arrowMode?.value || 'rotated',
+            arrowDirections: this.elements.arrowDirections?.value || '4'
         };
     }
 
