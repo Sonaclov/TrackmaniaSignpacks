@@ -1163,6 +1163,9 @@
                 <button id="generateBtn" class="toolbar-btn" onclick="generateSignpack()" style="background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%); font-weight: bold;" disabled>
                     <i class="fas fa-spinner fa-spin"></i> Loading...
                 </button>
+                <button id="shareBtn" class="toolbar-btn" onclick="openShareModal()" title="Share Your Design" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
                 <button class="toolbar-btn" onclick="checkGenerator()" title="Debug: Check Generator Status" style="font-size: 0.8em;">
                     <i class="fas fa-bug"></i>
                 </button>
@@ -1340,7 +1343,7 @@
 
                 <div class="panel-content">
                     <!-- Pack Configuration Content -->
-                    <div id="pack-panel" class="tab-panel" role="tabpanel" aria-labelledby="pack-tab">
+                    <div id="pack-panel" class="generator-panel" role="tabpanel" aria-labelledby="pack-tab">
                         <div class="tool-group">
                             <div class="tool-group-header">
                                 <i class="fas fa-box"></i> Sign Types
@@ -2095,5 +2098,39 @@
 
         <!-- Main Application Script -->
         <script src="script.js"></script>
+
+        <!-- Sharing Module -->
+        <script type="module">
+            import { shareManager } from './src/sharing.js';
+
+            // Make shareManager available globally
+            window.shareManager = shareManager;
+
+            // Wrapper function to open share modal
+            window.openShareModal = function() {
+                try {
+                    // Get current settings from the generator
+                    const settings = window.generator ? window.generator.getSettings() : {};
+
+                    // Get the main preview canvas for thumbnail
+                    const previewCanvas = document.getElementById('previewCanvas1');
+
+                    // Show the share modal
+                    shareManager.showShareModal(settings, previewCanvas);
+                } catch (error) {
+                    console.error('Error opening share modal:', error);
+                    alert('Failed to open share modal. Please try again.');
+                }
+            };
+
+            // Load settings from URL on page load
+            window.addEventListener('DOMContentLoaded', () => {
+                const settings = shareManager.loadFromUrl();
+                if (settings && window.generator) {
+                    console.log('Loading settings from URL...', settings);
+                    window.generator.applySettings(settings);
+                }
+            });
+        </script>
     </body>
     </html>
