@@ -1,4 +1,4 @@
-# 🏁 Trackmania Signpack Generator
+# Trackmania Signpack Generator
 
 **Create custom checkpoint signs for Trackmania!** Free, web-based tool with 60+ fonts, special effects, templates, and community sharing features.
 
