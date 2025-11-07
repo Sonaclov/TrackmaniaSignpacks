@@ -375,6 +375,52 @@
             color: var(--color-accent);
         }
 
+        /* Icon Button Styles */
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: rgba(0, 217, 255, 0.4);
+        }
+
+        .icon-btn.selected {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: var(--color-accent);
+        }
+
+        .icon-btn.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--color-accent);
+            color: var(--color-dominant);
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .icon-btn canvas {
+            display: block;
+        }
+
         @media (max-width: 600px) {
             .themes-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -1399,38 +1445,39 @@
                                     </div>
                                 </div>
 
-                                <!-- Arrows -->
+                                <!-- Icons -->
                                 <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px;">
                                     <div class="checkbox-group" style="margin-bottom: 8px;">
-                                        <input type="checkbox" id="includeArrows">
-                                        <label for="includeArrows" style="margin-bottom: 0; font-weight: 600;">Directional Arrows</label>
+                                        <input type="checkbox" id="includeIcons">
+                                        <label for="includeIcons" style="margin-bottom: 0; font-weight: 600;">Icon Signs</label>
                                     </div>
-                                    <div id="arrowConfig" style="display: none; gap: 8px; font-size: 0.85em;">
-                                        <!-- Arrow Mode Toggle -->
-                                        <div style="margin-bottom: 8px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 4px;">
-                                            <label style="display: block; margin-bottom: 4px; font-size: 0.9em; color: var(--color-accent);">Arrow Style:</label>
-                                            <select id="arrowMode" style="width: 100%; padding: 4px; background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;">
-                                                <option value="rotated">Rotated Arrow (↑ rotated 8 ways)</option>
-                                                <option value="character">Character Arrows (font dependent)</option>
-                                            </select>
+                                    <div id="iconConfig" style="display: none; gap: 8px; font-size: 0.85em;">
+                                        <div style="margin-bottom: 12px;">
+                                            <label style="display: block; margin-bottom: 8px; font-size: 0.9em; color: var(--color-accent); font-weight: 600;">
+                                                <i class="fas fa-arrows-alt"></i> Directional Arrows
+                                            </label>
+                                            <div id="arrowIconGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
+                                                <!-- Arrow icons will be populated here by JavaScript -->
+                                            </div>
+                                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 6px;">
+                                                <i class="fas fa-info-circle"></i> Click to select/deselect arrows
+                                            </div>
                                         </div>
-                                        <!-- Arrow Directions Selector -->
-                                        <div style="margin-bottom: 8px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 4px;">
-                                            <label style="display: block; margin-bottom: 4px; font-size: 0.9em; color: var(--color-accent);">Directions:</label>
-                                            <select id="arrowDirections" style="width: 100%; padding: 4px; background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;">
-                                                <option value="4">4 Directions (↑ ↓ ← →)</option>
-                                                <option value="8">8 Directions (+ diagonals ↖ ↗ ↙ ↘)</option>
-                                            </select>
+
+                                        <div style="margin-bottom: 12px;">
+                                            <label style="display: block; margin-bottom: 8px; font-size: 0.9em; color: var(--color-accent); font-weight: 600;">
+                                                <i class="fas fa-flag-checkered"></i> Race Type Icons
+                                            </label>
+                                            <div id="raceIconGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
+                                                <!-- Race icons will be populated here by JavaScript -->
+                                            </div>
+                                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 6px;">
+                                                <i class="fas fa-info-circle"></i> Click to select/deselect race icons
+                                            </div>
                                         </div>
-                                        <!-- Hidden checkboxes for compatibility with existing code -->
-                                        <input type="checkbox" id="arrowUp" checked style="display: none;">
-                                        <input type="checkbox" id="arrowDown" checked style="display: none;">
-                                        <input type="checkbox" id="arrowLeft" checked style="display: none;">
-                                        <input type="checkbox" id="arrowRight" checked style="display: none;">
-                                        <input type="checkbox" id="arrowUpLeft" style="display: none;">
-                                        <input type="checkbox" id="arrowUpRight" style="display: none;">
-                                        <input type="checkbox" id="arrowDownLeft" style="display: none;">
-                                        <input type="checkbox" id="arrowDownRight" style="display: none;">
+
+                                        <!-- Hidden for backward compatibility -->
+                                        <input type="checkbox" id="includeArrows" checked style="display: none;">
                                     </div>
                                 </div>
                             </div>
@@ -1781,6 +1828,7 @@
                                         <option value="solid">Solid Color</option>
                                         <option value="linear">Linear Gradient</option>
                                         <option value="radial">Radial Gradient</option>
+                                        <option value="abstract">Abstract Shapes (60-30-10)</option>
                                         <option value="pattern">Pattern</option>
                                         <option value="noise">Noise Texture</option>
                                         <option value="image">Custom Image</option>
@@ -1884,6 +1932,55 @@
                                         <option value="soft-light">Soft Light</option>
                                         <option value="hard-light">Hard Light</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="abstractOptions" style="display: none;">
+                                <div style="margin-bottom: 12px; padding: 8px; background: rgba(0, 217, 255, 0.1); border-radius: 4px; font-size: 0.85em; color: var(--color-text-secondary);">
+                                    <i class="fas fa-info-circle" style="color: var(--color-accent);"></i>
+                                    <strong>60-30-10 Rule:</strong> 60% dominant color, 30% secondary color, 10% accent for eye-catching designs
+                                </div>
+
+                                <label for="abstractStyle">Abstract Style:</label>
+                                <select id="abstractStyle">
+                                    <option value="racing">Racing Livery</option>
+                                    <option value="geometric">Geometric Shapes</option>
+                                    <option value="flowing">Flowing Curves</option>
+                                    <option value="angular">Angular Fragments</option>
+                                    <option value="layered">Layered Blocks</option>
+                                </select>
+
+                                <div style="margin-top: 12px;">
+                                    <label for="abstractDominant" style="font-weight: 600;">Dominant Color (60%):</label>
+                                    <input type="color" id="abstractDominant" value="#1a1d29">
+                                </div>
+
+                                <div style="margin-top: 12px;">
+                                    <label for="abstractSecondary" style="font-weight: 600;">Secondary Color (30%):</label>
+                                    <input type="color" id="abstractSecondary" value="#2a2f3f">
+                                </div>
+
+                                <div style="margin-top: 12px;">
+                                    <label for="abstractAccent" style="font-weight: 600;">Accent Color (10%):</label>
+                                    <input type="color" id="abstractAccent" value="#00d9ff">
+                                </div>
+
+                                <div class="form-group" style="margin-top: 12px;">
+                                    <label for="abstractComplexity">Complexity:</label>
+                                    <div class="range-container">
+                                        <input type="range" id="abstractComplexity" min="1" max="10" value="5">
+                                        <span id="abstractComplexityValue" class="range-value">5</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="abstractSeed">Random Seed:</label>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <input type="number" id="abstractSeed" min="0" max="9999" value="42" style="flex: 1; padding: 6px; background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;">
+                                        <button type="button" id="randomizeAbstractSeed" style="padding: 6px 12px; background: var(--color-accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">
+                                            <i class="fas fa-dice"></i> Random
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2099,6 +2196,9 @@
                 integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg=="
                 crossorigin="anonymous"
                 referrerpolicy="no-referrer"></script>
+
+        <!-- Icon Library -->
+        <script src="src/icons.js"></script>
 
         <!-- Main Application Script -->
         <script src="script.js"></script>

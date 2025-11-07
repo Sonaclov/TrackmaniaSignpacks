@@ -613,7 +613,7 @@ class TrackmaniaSignpackGenerator {
         const type = this.elements.backgroundType.value;
 
         // Hide all option groups first
-        const optionGroups = ['gradientOptions', 'patternOptions', 'noiseOptions', 'imageOptions'];
+        const optionGroups = ['gradientOptions', 'patternOptions', 'noiseOptions', 'imageOptions', 'abstractOptions'];
         optionGroups.forEach(groupId => {
             const element = document.getElementById(groupId);
             if (element) {
@@ -639,6 +639,10 @@ class TrackmaniaSignpackGenerator {
             case 'image':
                 const imageOptions = document.getElementById('imageOptions');
                 if (imageOptions) imageOptions.style.display = 'block';
+                break;
+            case 'abstract':
+                const abstractOptions = document.getElementById('abstractOptions');
+                if (abstractOptions) abstractOptions.style.display = 'block';
                 break;
         }
 
@@ -726,6 +730,115 @@ class TrackmaniaSignpackGenerator {
 
         // Load and display saved presets (if preset container exists)
         this.displayPresets();
+
+        // Initialize icon grids
+        this.initializeIconGrids();
+    }
+
+    initializeIconGrids() {
+        // Initialize selected icons storage
+        if (!this.selectedIcons) {
+            this.selectedIcons = {
+                arrows: new Set(['double-arrow-up', 'double-arrow-down', 'double-arrow-left', 'double-arrow-right']),
+                race: new Set()
+            };
+        }
+
+        // Populate arrow icon grid
+        const arrowGrid = document.getElementById('arrowIconGrid');
+        if (arrowGrid && typeof IconLibrary !== 'undefined') {
+            const arrowIcons = IconLibrary.getIconList('arrows');
+            arrowGrid.innerHTML = '';
+
+            arrowIcons.forEach(icon => {
+                const button = document.createElement('button');
+                button.className = 'icon-btn';
+                button.dataset.category = 'arrows';
+                button.dataset.iconId = icon.id;
+                button.title = icon.name;
+
+                // Create canvas for icon preview
+                const canvas = document.createElement('canvas');
+                canvas.width = 32;
+                canvas.height = 32;
+                const ctx = canvas.getContext('2d');
+                IconLibrary.renderIcon(ctx, 'arrows', icon.id, 16, 16, 24, '#00d9ff');
+
+                button.appendChild(canvas);
+
+                // Set initial selection state
+                if (this.selectedIcons.arrows.has(icon.id)) {
+                    button.classList.add('selected');
+                }
+
+                // Click handler
+                button.addEventListener('click', () => {
+                    if (this.selectedIcons.arrows.has(icon.id)) {
+                        this.selectedIcons.arrows.delete(icon.id);
+                        button.classList.remove('selected');
+                    } else {
+                        this.selectedIcons.arrows.add(icon.id);
+                        button.classList.add('selected');
+                    }
+                    this.updatePackSummary();
+                });
+
+                arrowGrid.appendChild(button);
+            });
+        }
+
+        // Populate race icon grid
+        const raceGrid = document.getElementById('raceIconGrid');
+        if (raceGrid && typeof IconLibrary !== 'undefined') {
+            const raceIcons = IconLibrary.getIconList('race');
+            raceGrid.innerHTML = '';
+
+            raceIcons.forEach(icon => {
+                const button = document.createElement('button');
+                button.className = 'icon-btn';
+                button.dataset.category = 'race';
+                button.dataset.iconId = icon.id;
+                button.title = icon.name;
+
+                // Create canvas for icon preview
+                const canvas = document.createElement('canvas');
+                canvas.width = 32;
+                canvas.height = 32;
+                const ctx = canvas.getContext('2d');
+                IconLibrary.renderIcon(ctx, 'race', icon.id, 16, 16, 24, '#00d9ff');
+
+                button.appendChild(canvas);
+
+                // Set initial selection state
+                if (this.selectedIcons.race.has(icon.id)) {
+                    button.classList.add('selected');
+                }
+
+                // Click handler
+                button.addEventListener('click', () => {
+                    if (this.selectedIcons.race.has(icon.id)) {
+                        this.selectedIcons.race.delete(icon.id);
+                        button.classList.remove('selected');
+                    } else {
+                        this.selectedIcons.race.add(icon.id);
+                        button.classList.add('selected');
+                    }
+                    this.updatePackSummary();
+                });
+
+                raceGrid.appendChild(button);
+            });
+        }
+
+        // Setup icon config toggle
+        const includeIconsCheckbox = document.getElementById('includeIcons');
+        const iconConfig = document.getElementById('iconConfig');
+        if (includeIconsCheckbox && iconConfig) {
+            includeIconsCheckbox.addEventListener('change', () => {
+                iconConfig.style.display = includeIconsCheckbox.checked ? 'block' : 'none';
+                this.updatePackSummary();
+            });
+        }
     }
 
     createDefaultPresets() {
@@ -1273,14 +1386,29 @@ class TrackmaniaSignpackGenerator {
         // FINISH sign
         this.drawSign(this.contexts.finish, maxWidth, canvasHeight, finishText);
 
-        // Arrow example - use arrow mode to determine which to show
-        const arrowMode = this.elements.arrowMode?.value || 'rotated';
-        if (arrowMode === 'rotated') {
-            // Show rotated up arrow (90 degrees = right)
-            this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '↑', 90);
+        // Icon example - show first selected icon or double-arrow-right as default
+        const includeIcons = document.getElementById('includeIcons')?.checked;
+        if (includeIcons && this.selectedIcons && (this.selectedIcons.arrows.size > 0 || this.selectedIcons.race.size > 0)) {
+            // Show first selected arrow icon or first selected race icon
+            let iconCategory = 'arrows';
+            let iconId = 'double-arrow-right';
+
+            if (this.selectedIcons.arrows.size > 0) {
+                iconId = Array.from(this.selectedIcons.arrows)[0];
+            } else if (this.selectedIcons.race.size > 0) {
+                iconCategory = 'race';
+                iconId = Array.from(this.selectedIcons.race)[0];
+            }
+
+            this.drawIconSign(this.contexts.arrow, maxWidth, canvasHeight, iconCategory, iconId);
         } else {
-            // Show character arrow (right arrow)
-            this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '→');
+            // Fallback to arrow text for backward compatibility
+            const arrowMode = this.elements.arrowMode?.value || 'rotated';
+            if (arrowMode === 'rotated') {
+                this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '↑', 90);
+            } else {
+                this.drawSign(this.contexts.arrow, maxWidth, canvasHeight, '→');
+            }
         }
     }
 
@@ -1319,6 +1447,53 @@ class TrackmaniaSignpackGenerator {
         // Restore rotation if applied
         if (rotation !== null && rotation !== undefined) {
             ctx.restore();
+        }
+
+        // Restore context
+        ctx.restore();
+    }
+
+    drawIconSign(ctx, width, height, iconCategory, iconId) {
+        const settings = this.getSettings();
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Save context for transformations
+        ctx.save();
+
+        // Enable high-quality rendering
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // Draw background
+        this.drawBackground(ctx, width, height, settings);
+
+        // Draw border
+        this.drawBorder(ctx, width, height, settings);
+
+        // Draw icon centered
+        if (typeof IconLibrary !== 'undefined') {
+            const iconSize = Math.min(width, height) * 0.6;
+            const iconColor = settings.textColor || '#ffffff';
+
+            // Apply text effects to icon color if needed
+            let effectColor = iconColor;
+            if (settings.textGlow || settings.neon) {
+                const glowColor = settings.glowColor || '#00ffff';
+                effectColor = glowColor;
+            }
+
+            IconLibrary.renderIcon(ctx, iconCategory, iconId, width / 2, height / 2, iconSize, effectColor);
+
+            // Apply glow effect if enabled
+            if (settings.textGlow || settings.neon) {
+                ctx.save();
+                ctx.shadowColor = settings.glowColor || '#00ffff';
+                ctx.shadowBlur = (settings.glowIntensity || 5) * (width / 512);
+                IconLibrary.renderIcon(ctx, iconCategory, iconId, width / 2, height / 2, iconSize, effectColor);
+                ctx.restore();
+            }
         }
 
         // Restore context
@@ -1376,6 +1551,10 @@ class TrackmaniaSignpackGenerator {
 
             case 'image':
                 this.drawImageBackground(ctx, width, height, settings);
+                break;
+
+            case 'abstract':
+                this.drawAbstractBackground(ctx, width, height, settings);
                 break;
         }
     }
@@ -2065,6 +2244,222 @@ class TrackmaniaSignpackGenerator {
         }
     }
 
+    // Seeded random number generator for consistent abstract patterns
+    seededRandom(seed) {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
+    drawAbstractBackground(ctx, width, height, settings) {
+        const dominant = settings.abstractDominant || '#1a1d29';
+        const secondary = settings.abstractSecondary || '#2a2f3f';
+        const accent = settings.abstractAccent || '#00d9ff';
+        const style = settings.abstractStyle || 'racing';
+        const complexity = settings.abstractComplexity || 5;
+        const seed = settings.abstractSeed || 42;
+
+        // Fill with dominant color (60%)
+        ctx.fillStyle = dominant;
+        ctx.fillRect(0, 0, width, height);
+
+        let rng = seed;
+        const random = () => {
+            rng++;
+            return this.seededRandom(rng);
+        };
+
+        switch (style) {
+            case 'racing':
+                this.drawRacingLivery(ctx, width, height, secondary, accent, complexity, random);
+                break;
+            case 'geometric':
+                this.drawGeometricShapes(ctx, width, height, secondary, accent, complexity, random);
+                break;
+            case 'flowing':
+                this.drawFlowingCurves(ctx, width, height, secondary, accent, complexity, random);
+                break;
+            case 'angular':
+                this.drawAngularFragments(ctx, width, height, secondary, accent, complexity, random);
+                break;
+            case 'layered':
+                this.drawLayeredBlocks(ctx, width, height, secondary, accent, complexity, random);
+                break;
+        }
+    }
+
+    drawRacingLivery(ctx, width, height, secondary, accent, complexity, random) {
+        // Draw diagonal stripes (30% secondary)
+        ctx.fillStyle = secondary;
+        const stripeCount = Math.floor(complexity / 2) + 2;
+        const stripeWidth = width / (stripeCount * 2);
+
+        for (let i = 0; i < stripeCount; i++) {
+            const x = i * stripeWidth * 2.5 - height;
+            ctx.save();
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate(-25 * Math.PI / 180);
+            ctx.translate(-width / 2, -height / 2);
+            ctx.fillRect(x, 0, stripeWidth, height * 2);
+            ctx.restore();
+        }
+
+        // Draw accent highlights (10%)
+        ctx.fillStyle = accent;
+        const accentCount = Math.floor(complexity / 3) + 1;
+        for (let i = 0; i < accentCount; i++) {
+            const x = random() * width;
+            const y = random() * height;
+            const w = (random() * 0.3 + 0.1) * width;
+            const h = height * 0.05;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate((random() * 30 - 15) * Math.PI / 180);
+            ctx.fillRect(-w / 2, -h / 2, w, h);
+            ctx.restore();
+        }
+    }
+
+    drawGeometricShapes(ctx, width, height, secondary, accent, complexity, random) {
+        // Secondary shapes (30%)
+        ctx.fillStyle = secondary;
+        const shapeCount = complexity + 3;
+
+        for (let i = 0; i < shapeCount; i++) {
+            const x = random() * width;
+            const y = random() * height;
+            const size = (random() * 0.2 + 0.1) * Math.min(width, height);
+            const sides = Math.floor(random() * 4) + 3; // 3-6 sides
+
+            ctx.beginPath();
+            for (let j = 0; j < sides; j++) {
+                const angle = (j / sides) * Math.PI * 2;
+                const px = x + Math.cos(angle) * size;
+                const py = y + Math.sin(angle) * size;
+                if (j === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Accent shapes (10%)
+        ctx.fillStyle = accent;
+        const accentCount = Math.floor(complexity / 2) + 1;
+        for (let i = 0; i < accentCount; i++) {
+            const x = random() * width;
+            const y = random() * height;
+            const size = (random() * 0.15 + 0.05) * Math.min(width, height);
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    drawFlowingCurves(ctx, width, height, secondary, accent, complexity, random) {
+        // Secondary flowing shapes (30%)
+        ctx.fillStyle = secondary;
+        const curveCount = complexity + 2;
+
+        for (let i = 0; i < curveCount; i++) {
+            ctx.beginPath();
+            const startX = random() * width;
+            const startY = random() * height;
+            ctx.moveTo(startX, startY);
+
+            const points = 4;
+            for (let j = 0; j < points; j++) {
+                const cpX = random() * width;
+                const cpY = random() * height;
+                const endX = random() * width;
+                const endY = random() * height;
+                ctx.quadraticCurveTo(cpX, cpY, endX, endY);
+            }
+
+            ctx.lineWidth = (random() * 30 + 20) * (width / 512);
+            ctx.strokeStyle = secondary;
+            ctx.stroke();
+        }
+
+        // Accent curves (10%)
+        ctx.strokeStyle = accent;
+        const accentCount = Math.floor(complexity / 2);
+        for (let i = 0; i < accentCount; i++) {
+            ctx.beginPath();
+            ctx.moveTo(random() * width, random() * height);
+            ctx.quadraticCurveTo(random() * width, random() * height, random() * width, random() * height);
+            ctx.lineWidth = (random() * 15 + 10) * (width / 512);
+            ctx.stroke();
+        }
+    }
+
+    drawAngularFragments(ctx, width, height, secondary, accent, complexity, random) {
+        // Secondary angular shapes (30%)
+        ctx.fillStyle = secondary;
+        const fragmentCount = complexity * 2;
+
+        for (let i = 0; i < fragmentCount; i++) {
+            ctx.beginPath();
+            const x = random() * width;
+            const y = random() * height;
+            const size = (random() * 0.15 + 0.1) * Math.min(width, height);
+
+            // Draw triangle
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + size * Math.cos(random() * Math.PI * 2), y + size * Math.sin(random() * Math.PI * 2));
+            ctx.lineTo(x + size * Math.cos(random() * Math.PI * 2), y + size * Math.sin(random() * Math.PI * 2));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Accent fragments (10%)
+        ctx.fillStyle = accent;
+        const accentCount = Math.floor(complexity / 2) + 2;
+        for (let i = 0; i < accentCount; i++) {
+            const x = random() * width;
+            const y = random() * height;
+            const w = (random() * 0.1 + 0.05) * width;
+            const h = (random() * 0.1 + 0.05) * height;
+            const angle = random() * Math.PI * 2;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.fillRect(-w / 2, -h / 2, w, h);
+            ctx.restore();
+        }
+    }
+
+    drawLayeredBlocks(ctx, width, height, secondary, accent, complexity, random) {
+        // Secondary blocks (30%)
+        ctx.fillStyle = secondary;
+        const blockCount = complexity + 4;
+
+        for (let i = 0; i < blockCount; i++) {
+            const x = random() * width;
+            const y = random() * height;
+            const w = (random() * 0.3 + 0.15) * width;
+            const h = (random() * 0.3 + 0.15) * height;
+            const alpha = random() * 0.5 + 0.5;
+
+            ctx.globalAlpha = alpha;
+            ctx.fillRect(x - w / 2, y - h / 2, w, h);
+        }
+        ctx.globalAlpha = 1;
+
+        // Accent blocks (10%)
+        ctx.fillStyle = accent;
+        const accentCount = Math.floor(complexity / 2) + 1;
+        for (let i = 0; i < accentCount; i++) {
+            const x = random() * width;
+            const y = random() * height;
+            const w = (random() * 0.2 + 0.05) * width;
+            const h = (random() * 0.2 + 0.05) * height;
+
+            ctx.fillRect(x - w / 2, y - h / 2, w, h);
+        }
+    }
+
 
     updateStats() {
         const settings = this.getSettings();
@@ -2129,6 +2524,13 @@ class TrackmaniaSignpackGenerator {
             noiseScale: parseInt(this.elements.noiseScale.value),
             imageOpacity: parseInt(this.elements.imageOpacity.value),
             imageBlendMode: this.elements.imageBlendMode.value,
+
+            abstractStyle: document.getElementById('abstractStyle')?.value || 'racing',
+            abstractDominant: document.getElementById('abstractDominant')?.value || '#1a1d29',
+            abstractSecondary: document.getElementById('abstractSecondary')?.value || '#2a2f3f',
+            abstractAccent: document.getElementById('abstractAccent')?.value || '#00d9ff',
+            abstractComplexity: parseInt(document.getElementById('abstractComplexity')?.value || 5),
+            abstractSeed: parseInt(document.getElementById('abstractSeed')?.value || 42),
 
             textShadow: this.elements.textShadow.checked,
             shadowColor: this.elements.shadowColor.value,
@@ -2661,6 +3063,34 @@ class TrackmaniaSignpackGenerator {
             }
         }
 
+        // Icons - new icon system
+        const includeIcons = document.getElementById('includeIcons')?.checked;
+        if (includeIcons && this.selectedIcons) {
+            // Add selected arrow icons
+            if (this.selectedIcons.arrows && this.selectedIcons.arrows.size > 0) {
+                this.selectedIcons.arrows.forEach(iconId => {
+                    signs.push({
+                        type: 'icon',
+                        iconCategory: 'arrows',
+                        iconId: iconId,
+                        filename: `icon-arrow-${iconId}.png`
+                    });
+                });
+            }
+
+            // Add selected race icons
+            if (this.selectedIcons.race && this.selectedIcons.race.size > 0) {
+                this.selectedIcons.race.forEach(iconId => {
+                    signs.push({
+                        type: 'icon',
+                        iconCategory: 'race',
+                        iconId: iconId,
+                        filename: `icon-race-${iconId}.png`
+                    });
+                });
+            }
+        }
+
         return signs;
     }
 
@@ -2726,7 +3156,13 @@ class TrackmaniaSignpackGenerator {
 
                 // Clear and draw the sign
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                this.drawSign(ctx, dimensions.width, dimensions.height, sign.text, sign.rotation);
+
+                // Draw based on sign type
+                if (sign.type === 'icon') {
+                    this.drawIconSign(ctx, dimensions.width, dimensions.height, sign.iconCategory, sign.iconId);
+                } else {
+                    this.drawSign(ctx, dimensions.width, dimensions.height, sign.text, sign.rotation);
+                }
 
                 try {
                     const blob = await this.canvasToBlob(canvas);
@@ -3392,6 +3828,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 generator.exportSettings();
             }
         });
+
+        // Abstract background randomize seed button
+        const randomizeAbstractSeed = document.getElementById('randomizeAbstractSeed');
+        if (randomizeAbstractSeed) {
+            randomizeAbstractSeed.addEventListener('click', () => {
+                const seedInput = document.getElementById('abstractSeed');
+                if (seedInput) {
+                    seedInput.value = Math.floor(Math.random() * 10000);
+                    if (generator) {
+                        generator.updatePreview();
+                    }
+                }
+            });
+        }
 
         // Add CSS animations
         const style = document.createElement('style');
